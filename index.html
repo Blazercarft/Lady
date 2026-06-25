@@ -1,653 +1,128 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LADY 💜 - Quarteto da Drikka</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Script do Supabase v2 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LADY 💜 - Sistema de Gestão</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --purple-main: #8A2BE2;
-            --purple-light: #C8A2FF;
-            --purple-bg: #F4EEFF;
-            --white: #FFFFFF;
-            --gold: #FFD700;
-            --dark: #2A1A4A;
-            --gray-light: #F8F9FA;
-            --gray-text: #6C757D;
-            --danger: #FF4D4D;
-            --success: #2ECC71;
-            --shadow-premium: 0 8px 24px rgba(138, 43, 226, 0.15);
-            --radius-main: 16px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--purple-bg);
-            color: var(--dark);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Tela de Login */
-        #login-screen {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100vh;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.05);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 36px;
-            color: var(--purple-main);
-            font-weight: 700;
-        }
-
-        .login-header h1 span { color: var(--gold); }
-
-        /* Container Principal do App */
-        .app-container {
-            display: none;
-            width: 100%;
-            max-width: 480px;
-            background: var(--white);
-            min-height: 100vh;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.05);
-            padding-bottom: 75px;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--purple-main), #5B11A6);
-            color: var(--white);
-            padding: 25px 20px;
-            border-bottom-left-radius: 24px;
-            border-bottom-right-radius: 24px;
-            box-shadow: var(--shadow-premium);
-            text-align: center;
-            position: relative;
-        }
-
-        header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        header h1 span { color: var(--gold); }
-        header p { font-size: 11px; opacity: 0.9; font-weight: 300; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
-
-        .app-screen { display: none; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
+        :root { --purple: #8A2BE2; --bg: #f4f4f9; --white: #ffffff; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; }
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; }
+        .app-container { display: none; padding-bottom: 80px; }
+        .app-screen { display: none; padding: 20px; }
         .app-screen.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h2 { font-size: 18px; color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-
-        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-        .dash-card { background: var(--white); border: 1px solid rgba(200, 162, 255, 0.3); border-radius: var(--radius-main); padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
-        .dash-card.full-width { grid-column: span 2; background: linear-gradient(135deg, #FAF7FF, var(--white)); border-left: 5px solid var(--purple-main); }
-        .dash-card i { position: absolute; right: 15px; top: 15px; color: var(--purple-light); font-size: 18px; }
-        .dash-card p { font-size: 11px; color: var(--gray-text); font-weight: 500; }
-        .dash-card h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin-top: 5px; }
-
-        .text-success { color: var(--success) !important; }
-        .text-danger { color: var(--danger) !important; }
-
-        .btn-primary { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main); font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s; }
-        .btn-primary:active { transform: scale(0.98); }
-
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--dark); }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; transition: 0.2s; background: var(--gray-light); }
-        .form-control:focus { border-color: var(--purple-main); background: var(--white); }
-
-        .list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .item-card { display: flex; align-items: center; background: var(--white); border: 1px solid #F0E6FF; padding: 12px; border-radius: var(--radius-main); gap: 12px; }
-        .item-img-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; color: var(--purple-main); font-size: 20px; overflow: hidden;}
-        .item-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
-        .item-info { flex: 1; }
-        .item-info h4 { font-size: 14px; font-weight: 600; }
-        .item-info p { font-size: 11px; color: var(--gray-text); }
-        .item-actions { display: flex; gap: 8px; }
-        .btn-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 5px; }
-        .btn-icon.edit { color: var(--purple-main); }
-        .btn-icon.delete { color: var(--danger); }
-
-        .chat-container { background: var(--gray-light); border-radius: var(--radius-main); height: 250px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #E2E8F0; }
-        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
-        .chat-bubble.lady { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: white; align-self: flex-start; border-top-left-radius: 4px; }
-        .chat-bubble.user { background: var(--purple-light); color: var(--dark); align-self: flex-end; border-top-right-radius: 4px; }
-        .chat-suggestions { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
-        .suggestion-tag { background: var(--white); border: 1px solid var(--purple-light); padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--purple-main); font-weight: 500; }
-
-        nav.nav-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999; }
-        .nav-item { background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; display: flex; flex-direction: column; align-items: center; }
-        .nav-item i { font-size: 20px; margin-bottom: 3px; }
-        .nav-item.active { color: var(--purple-main); }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: var(--white); border-radius: var(--radius-main); width: 100%; max-width: 400px; padding: 20px; max-height: 85vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .mt-3 { margin-top: 15px; }
-        .mb-3 { margin-bottom: 15px; }
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .item-card { background: var(--white); padding: 15px; margin-bottom: 10px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .form-control { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .btn { padding: 10px 20px; background: var(--purple); color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN INTEGRADA -->
     <div id="login-screen">
-        <div class="login-header">
-            <h1>LADY <span>💜</span></h1>
-            <p style="color: var(--gray-text); letter-spacing: 1px; font-size: 12px;">QUARTETO DA DRIKKA</p>
-        </div>
-        <div class="form-group">
-            <label>E-mail de Acesso</label>
-            <input type="email" id="login-email" class="form-control" placeholder="admin@quartetodadrikka.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 25px;">
-            <label>Senha Secreta</label>
-            <input type="password" id="login-password" class="form-control" placeholder="••••••••">
-        </div>
-        <button class="btn-primary" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Sistema</button>
+        <h2>Login LADY 💜</h2>
+        <input type="email" id="login-email" class="form-control" placeholder="E-mail">
+        <input type="password" id="login-password" class="form-control" placeholder="Senha">
+        <button class="btn" onclick="realizarLogin()">Entrar</button>
     </div>
 
-    <!-- CONTAINER DO APP PRINCIPAL -->
     <div class="app-container" id="main-app">
-        <header>
-            <h1>LADY <span>💜</span></h1>
-            <p>A inteligência da sua loja</p>
-        </header>
+        <header style="background: var(--purple); color: white; padding: 20px; text-align: center;"><h1>LADY Gestão</h1></header>
 
         <section id="screen-dashboard" class="app-screen active">
-            <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
-            <div class="dash-grid">
-                <div class="dash-card full-width">
-                    <i class="fa-solid fa-money-bill-trend-up text-success"></i>
-                    <p>Faturamento do Mês</p>
-                    <h3 id="dash-faturamento-mes">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-calendar-day"></i>
-                    <p>Faturamento Dia</p>
-                    <h3 id="dash-faturamento-dia">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-hand-holding-dollar text-success"></i>
-                    <p>Lucro do Mês</p>
-                    <h3 id="dash-lucro-mes">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-box"></i>
-                    <p>Total Produtos</p>
-                    <h3 id="dash-total-produtos">0</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                    <p>Estoque Baixo</p>
-                    <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
-                </div>
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
-
-            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
-            <div class="chat-suggestions">
-                <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Quais os produtos mais vendidos?')">Mais vendidos</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
-            </div>
-            <div class="chat-container" id="chat-box">
-                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar na gestão hoje? ✨</div>
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
-                <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
+            <h3>Dashboard</h3>
+            <p>Faturamento Mês: <b id="dash-faturamento-mes">R$ 0,00</b></p>
+            <p>Estoque Baixo: <b id="dash-estoque-baixo">0</b></p>
         </section>
 
         <section id="screen-estoque" class="app-screen">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
-                <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Novo</button>
-            </div>
-            <input type="text" id="search-produto" class="form-control mb-3" placeholder="🔍 Buscar produto..." oninput="renderEstoque()">
-            <div class="list-container" id="lista-produtos"></div>
+            <h3>Estoque</h3>
+            <button class="btn" onclick="openProductModal()">+ Produto</button>
+            <div id="lista-produtos"></div>
         </section>
 
         <section id="screen-vendas" class="app-screen">
-            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
-            <div class="form-group">
-                <label>Selecionar Produto</label>
-                <select id="venda-produto-select" class="form-control"></select>
-            </div>
-            <div class="form-group">
-                <label>Quantidade</label>
-                <input type="number" id="venda-qtd" class="form-control" value="1" min="1">
-            </div>
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="venda-pagamento" class="form-control">
-                    <option value="Pix">Pix</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="Débito">Débito</option>
-                    <option value="Crédito">Crédito</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Vincular a um Cliente (Opcional)</label>
-                <select id="venda-cliente-select" class="form-control"></select>
-            </div>
-            <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
-
-            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas Realizadas</h3>
-            <div class="list-container" id="lista-vendas-recentes"></div>
-        </section>
-
-        <section id="screen-relatorios" class="app-screen">
-            <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
-            <div class="dash-grid">
-                <div class="dash-card">
-                    <p>Receita Diária</p>
-                    <h3 id="fin-receita-dia" class="text-success">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <p>Receita Mensal</p>
-                    <h3 id="fin-receita-mes" class="text-success">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <p>Custos Totais</p>
-                    <h3 id="fin-despesas" class="text-danger">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <p>Lucro Líquido</p>
-                    <h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3>
-                </div>
-            </div>
-
-            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Desempenho de Produtos</h2>
-            <div class="dash-card full-width mb-3">
-                <p>⭐ Produto Mais Vendido</p>
-                <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
-            </div>
-            <div class="dash-card full-width mb-3">
-                <p>⚠️ Menor Saída / Encalhado</p>
-                <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
-            </div>
-        </section>
-
-        <section id="screen-configuracoes" class="app-screen">
-            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
-            <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
-                <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
-                <div class="form-group">
-                    <input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo">
-                </div>
-                <div class="form-group">
-                    <input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp">
-                </div>
-                <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
-            </div>
-            <h3>Lista de Clientes</h3>
-            <div class="list-container" id="lista-clientes"></div>
+            <h3>Registrar Venda</h3>
+            <select id="venda-produto-select" class="form-control"></select>
+            <input type="number" id="venda-qtd" class="form-control" placeholder="Quantidade">
+            <button class="btn" onclick="registrarVenda()">Confirmar Venda</button>
         </section>
 
         <nav class="nav-bottom">
-            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dashboard</button>
-            <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
-            <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
-            <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
-            <button class="nav-item" onclick="switchScreen('configuracoes', this)"><i class="fa-solid fa-gear"></i>Config</button>
+            <button onclick="switchScreen('dashboard', this)">Dash</button>
+            <button onclick="switchScreen('estoque', this)">Estoque</button>
+            <button onclick="switchScreen('vendas', this)">Vendas</button>
         </nav>
     </div>
 
-    <!-- MODAL DE PRODUTO -->
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title" style="color: var(--purple-main);">Cadastrar Produto</h3>
-                <button class="btn-icon" onclick="closeProductModal()" style="font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <input type="hidden" id="prod-id">
-            <div class="form-group">
-                <label>Imagem do Produto</label>
-                <input type="file" id="prod-img" class="form-control" accept="image/*" onchange="triggerImageBase64(this)">
-                <input type="hidden" id="prod-img-base64">
-            </div>
-            <div class="form-group">
-                <label>Nome do Produto</label>
-                <input type="text" id="prod-nome" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Categoria</label>
-                <input type="text" id="prod-categoria" class="form-control" placeholder="Ex: Vestidos, Conjuntos">
-            </div>
-            <div class="form-group">
-                <label>Quantidade em Estoque</label>
-                <input type="number" id="prod-qtd" class="form-control" min="0" required>
-            </div>
-            <div class="form-group">
-                <label>Preço de Custo (R$)</label>
-                <input type="number" id="prod-custo" class="form-control" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Preço de Venda (R$)</label>
-                <input type="number" id="prod-venda" class="form-control" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Descrição</label>
-                <textarea id="prod-desc" class="form-control" rows="2"></textarea>
-            </div>
-            <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
-        </div>
-    </div>
-
     <script>
-        // Configuração do Supabase Client
-        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_ND1CE4iBtRZ-XxJVi6HmpQ_P0XEZecy"; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        const _supabase = supabase.createClient("https://zdxjvpafyxjbtnyxexsq.supabase.co", "sb_publishable_ND1CE4iBtRZ-XxJVi6HmpQ_P0XEZecy");
         let DB = { produtos: [], vendas: [], clientes: [] };
 
         async function realizarLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert("Erro no login: " + error.message);
-            } else {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else {
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'flex';
-                await pullFromSupabase();
+                document.getElementById('main-app').style.display = 'block';
+                pullFromSupabase();
             }
         }
 
         async function pullFromSupabase() {
-            let p = await _supabase.from('lady_produtos').select('*');
-            let v = await _supabase.from('lady_vendas').select('*');
-            let c = await _supabase.from('lady_clientes').select('*');
-
-            DB.produtos = p.data || [];
-            DB.vendas = v.data || [];
-            DB.clientes = c.data || [];
-
-            calcularMetricas();
+            const { data: p } = await _supabase.from('lady_produtos').select('*');
+            const { data: v } = await _supabase.from('lady_vendas').select('*');
+            DB.produtos = p || []; DB.vendas = v || [];
             renderEstoque();
-            preencherSelectsVenda();
-            renderClientes();
-        }
-
-        function switchScreen(screenId, element) {
-            document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById(`screen-${screenId}`).classList.add('active');
-            element.classList.add('active');
-            pullFromSupabase();
-        }
-
-        function triggerImageBase64(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { document.getElementById('prod-img-base64').value = e.target.result; }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function openProductModal(id = null) {
-            document.getElementById('product-modal').style.display = 'flex';
-            if(id) {
-                document.getElementById('modal-title').innerText = "Editar Produto";
-                const p = DB.produtos.find(prod => prod.id === id);
-                document.getElementById('prod-id').value = p.id;
-                document.getElementById('prod-nome').value = p.nome;
-                document.getElementById('prod-categoria').value = p.categoria;
-                document.getElementById('prod-qtd').value = p.qtd;
-                document.getElementById('prod-custo').value = p.custo;
-                document.getElementById('prod-venda').value = p.venda;
-                document.getElementById('prod-desc').value = p.descricao;
-                document.getElementById('prod-img-base64').value = p.imagem || '';
-            } else {
-                document.getElementById('modal-title').innerText = "Cadastrar Produto";
-                document.getElementById('prod-id').value = '';
-                document.getElementById('prod-nome').value = '';
-                document.getElementById('prod-categoria').value = '';
-                document.getElementById('prod-qtd').value = '';
-                document.getElementById('prod-custo').value = '';
-                document.getElementById('prod-venda').value = '';
-                document.getElementById('prod-desc').value = '';
-                document.getElementById('prod-img-base64').value = '';
-            }
-        }
-
-        function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
-
-        async function salvarProduto() {
-            const id = document.getElementById('prod-id').value;
-            const nome = document.getElementById('prod-nome').value;
-            const categoria = document.getElementById('prod-categoria').value;
-            const qtd = parseInt(document.getElementById('prod-qtd').value) || 0;
-            const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
-            const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
-            const descricao = document.getElementById('prod-desc').value;
-            const imagem = document.getElementById('prod-img-base64').value;
-
-            if(!nome || qtd < 0 || custo <= 0 || venda <= 0) return alert('Campos obrigatórios inválidos.');
-
-            const payload = { nome, categoria, qtd, custo, venda, descricao, imagem };
-
-            if(id) {
-                await _supabase.from('lady_produtos').update(payload).eq('id', id);
-            } else {
-                await _supabase.from('lady_produtos').insert([payload]);
-            }
-
-            closeProductModal();
-            await pullFromSupabase();
-        }
-
-        async function excluirProduto(id) {
-            if(confirm("Deseja deletar este produto?")) {
-                await _supabase.from('lady_produtos').delete().eq('id', id);
-                await pullFromSupabase();
-            }
+            calcularMetricas();
+            preencherSelects();
         }
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
-            const busca = document.getElementById('search-produto').value.toLowerCase();
-            lista.innerHTML = '';
-            const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
-
-            filtrados.forEach(p => {
-                const imgTag = p.imagem ? `<img src="${p.imagem}">` : `<i class="fa-solid fa-image"></i>`;
-                lista.innerHTML += `
-                    <div class="item-card">
-                        <div class="item-img-thumb">${imgTag}</div>
-                        <div class="item-info">
-                            <h4>${p.nome}</h4>
-                            <p>Preço: <b>R$ ${Number(p.venda).toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn-icon delete" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>`;
-            });
+            lista.innerHTML = DB.produtos.map(p => `
+                <div class="item-card">
+                    <div><b>${p.nome}</b><br>Qtd: ${p.qtd} | R$ ${p.venda}</div>
+                    <button onclick="excluirProduto(${p.id})">Excluir</button>
+                </div>`).join('');
         }
 
-        async function cadastrarCliente() {
-            const nome = document.getElementById('cliente-nome').value;
-            const fone = document.getElementById('cliente-fone').value;
-            if(!nome || !fone) return alert('Preencha os campos!');
-
-            await _supabase.from('lady_clientes').insert([{ nome, fone, comprasCount: 0 }]);
-            document.getElementById('cliente-nome').value = '';
-            document.getElementById('cliente-fone').value = '';
-            await pullFromSupabase();
+        function calcularMetricas() {
+            const fatMes = DB.vendas.reduce((a, b) => a + Number(b.total), 0);
+            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
         }
 
-        function renderClientes() {
-            const lista = document.getElementById('lista-clientes');
-            lista.innerHTML = '';
-            DB.clientes.forEach(c => {
-                lista.innerHTML += `
-                    <div class="item-card">
-                        <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
-                        <div class="item-info">
-                            <h4>${c.nome}</h4>
-                            <p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p>
-                        </div>
-                    </div>`;
-            });
-        }
-
-        function preencherSelectsVenda() {
-            const prodSelect = document.getElementById('venda-produto-select');
-            const cliSelect = document.getElementById('venda-cliente-select');
-            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
-            DB.produtos.forEach(p => prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${Number(p.venda).toFixed(2)}</option>`);
-            
-            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
-            DB.clientes.forEach(c => cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
-            renderVendasRecentes();
+        function preencherSelects() {
+            const sel = document.getElementById('venda-produto-select');
+            sel.innerHTML = DB.produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
         }
 
         async function registrarVenda() {
             const prodId = document.getElementById('venda-produto-select').value;
-            const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
-            const pagamento = document.getElementById('venda-pagamento').value;
-            const clienteId = document.getElementById('venda-cliente-select').value;
-
-            if(!prodId || qtd <= 0) return alert('Selecione dados válidos.');
+            const qtd = parseInt(document.getElementById('venda-qtd').value);
             const produto = DB.produtos.find(p => p.id == prodId);
-            if(produto.qtd < qtd) return alert('Estoque insuficiente!');
-
-            let novoEstoque = produto.qtd - qtd;
-            await _supabase.from('lady_produtos').update({ qtd: novoEstoque }).eq('id', prodId);
-
-            if(clienteId) {
-                const cliente = DB.clientes.find(c => c.id == clienteId);
-                await _supabase.from('lady_clientes').update({ comprasCount: (cliente.comprasCount || 0) + 1 }).eq('id', clienteId);
-            }
-
-            await _supabase.from('lady_vendas').insert([{
-                data: new Date().toISOString().split('T')[0],
-                produtoNome: produto.nome,
-                produtoId: produto.id,
-                qtd,
-                total: produto.venda * qtd,
-                lucro: (produto.venda * qtd) - (produto.custo * qtd),
-                custo: produto.custo * qtd,
-                pagamento
-            }]);
-
-            alert('Venda registrada com sucesso!');
-            await pullFromSupabase();
-        }
-
-        function renderVendasRecentes() {
-            const lista = document.getElementById('lista-vendas-recentes');
-            lista.innerHTML = '';
-            [...DB.vendas].reverse().slice(0, 5).forEach(v => {
-                lista.innerHTML += `
-                    <div class="item-card" style="border-left: 4px solid var(--success);">
-                        <div class="item-info">
-                            <h4>${v.produtoNome} (x${v.qtd})</h4>
-                            <p>Método: <b>${v.pagamento}</b></p>
-                        </div>
-                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${Number(v.total).toFixed(2)}</span></div>
-                    </div>`;
-            });
-        }
-
-        function calcularMetricas() {
-            const hoje = new Date().toISOString().split('T')[0];
-            let fatDia = 0, fatMes = 0, lucroMes = 0, despesas = 0;
-
-            DB.vendas.forEach(v => {
-                if(v.data === hoje) fatDia += Number(v.total);
-                fatMes += Number(v.total);
-                lucroMes += Number(v.lucro);
-            });
-
-            DB.produtos.forEach(p => { despesas += (Number(p.custo) * p.qtd); });
-
-            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
-            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
-
-            document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
-            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
-        }
-
-        function sendChat() {
-            const input = document.getElementById('chat-input');
-            if(!input.value.trim()) return;
-            renderBubble(input.value, 'user');
-            processarRespostaIA(input.value);
-            input.value = '';
-        }
-
-        function askLadyIA(msg) { renderBubble(msg, 'user'); processarRespostaIA(msg); }
-        function renderBubble(txt, side) { const b = document.getElementById('chat-box'); b.innerHTML += `<div class="chat-bubble ${side}">${txt}</div>`; b.scrollTop = b.scrollHeight; }
-
-        function processarRespostaIA(pergunta) {
-            const p = pergunta.toLowerCase();
-            let r = "Posso te dar dados sobre Faturamento, Estoque ou Lucro da sua loja!";
             
-            if (p.includes('faturamento')) {
-                r = `O faturamento bruto atual da loja na nuvem é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.total),0).toFixed(2)}**.`;
-            } else if (p.includes('lucro')) {
-                r = `Seu lucro limpo calculado com base nos custos é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.lucro),0).toFixed(2)}**.`;
-            } else if (p.includes('estoque')) {
-                r = `Temos um total de **${DB.produtos.reduce((a,p)=>a+p.qtd,0)} itens** físicos em nosso acervo.`;
-            }
-            setTimeout(() => renderBubble(r, 'lady'), 300);
+            await _supabase.from('lady_vendas').insert([{
+                produtoNome: produto.nome,
+                total: produto.venda * qtd,
+                lucro: (produto.venda - produto.custo) * qtd
+            }]);
+            await _supabase.from('lady_produtos').update({ qtd: produto.qtd - qtd }).eq('id', prodId);
+            alert("Venda realizada!");
+            pullFromSupabase();
         }
 
-        window.onload = () => {
-            document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat(); });
-        };
+        function switchScreen(id, el) {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
+        }
+
+        function openProductModal() { alert("Use o painel do Supabase ou adicione aqui a lógica de modal."); }
     </script>
 </body>
-    </html>
+</html>

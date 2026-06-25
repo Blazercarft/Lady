@@ -411,7 +411,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
 
         async function pullFromSupabase() {
-            let p = await _supabase.from('lady_produtos').select('*');
+            const { data, error } = await _supabase
+    .from('lady_produtos')
+    .select('*');
+
+console.log("DATA:", data);
+console.log("ERRO:", error);
             let v = await _supabase.from('lady_vendas').select('*');
             let c = await _supabase.from('lady_clientes').select('*');
 

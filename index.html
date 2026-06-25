@@ -467,13 +467,15 @@
     <!-- NÚCLEO DE CONTROLE DA SPA -->
     <script>
         const Engine = {
-            async init() {
+            init() {
                 window.addEventListener('hashchange', () => this.router());
                 this.router();
                 this.syncParams();
-                if (_supabase) {
-                    await this.pullDatabase();
-                }
+                
+                // Correção de travamento: Carrega o banco em segundo plano sem congelar a interface
+                setTimeout(() => {
+                    this.pullDatabase();
+                }, 500);
             },
             notify(text) {
                 const box = document.getElementById('toast-wrapper');
@@ -484,6 +486,7 @@
                 setTimeout(() => toast.remove(), 4000);
             },
             async pullDatabase() {
+                if (!_supabase) return;
                 try {
                     const { data: prod } = await _supabase.from('produtos').select('*');
                     if (prod) storage.produtos = prod;
@@ -501,26 +504,37 @@
             },
             router() {
                 const route = window.location.hash || '#/';
-                document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('pane-active'));
+                
+                // Remove a ativação de todas as seções primeiro
+                document.querySelectorAll('.view-pane').forEach(p => {
+                    p.classList.remove('pane-active');
+                    p.style.display = 'none';
+                });
 
                 if(route === '#/catalog') {
-                    document.getElementById('view-catalog').classList.add('pane-active');
+                    const catalogView = document.getElementById('view-catalog');
+                    catalogView.classList.add('pane-active');
+                    catalogView.style.display = 'block';
                     Showcase.render();
                     return;
                 }
 
                 if(!activeSession) {
-                    document.getElementById('view-auth').classList.add('pane-active');
+                    const authView = document.getElementById('view-auth');
+                    authView.classList.add('pane-active');
+                    authView.style.display = 'flex';
                     document.getElementById('view-workspace').style.display = 'none';
                     return;
                 }
 
                 document.getElementById('view-auth').classList.remove('pane-active');
+                document.getElementById('view-auth').style.display = 'none';
                 document.getElementById('view-workspace').style.display = 'flex';
 
                 const sectionId = 'pane-' + route.replace('#/', '');
                 const targetPane = document.getElementById(sectionId) || document.getElementById('pane-dashboard');
                 targetPane.classList.add('pane-active');
+                targetPane.style.display = 'block';
 
                 document.querySelectorAll('.fin-restrict').forEach(el => {
                     el.style.display = activeSession.role === 'Administrador' ? '' : 'none';
@@ -562,7 +576,6 @@
                     const email = document.getElementById('auth-field-email').value.trim();
                     const pass = document.getElementById('auth-field-password').value.trim();
 
-                    // TRAVA DE SEGURANÇA LOCAL INDESTRUTÍVEL
                     if (email === "admin@quartetodadrikka.com" && pass === "Drikka@2026") {
                         activeSession = { email: email, role: 'Administrador' };
                         Engine.notify("Acesso Autorizado como Administrador.");
@@ -596,14 +609,16 @@
                 document.getElementById('dash-txt-lucro').innerText = `R$ ${(totalReceitas - storage.financeiro.despesas).toFixed(2)}`;
 
                 const table = document.getElementById('dash-table-vendas');
-                table.innerHTML = storage.vendas.length === 0 ? '<tr><td style="color:var(--text-secondary)">Nenhuma transação efetuada no ciclo atual.</td></tr>' :
-                    storage.vendas.map(v => `
-                        <tr style="border-bottom: 1px solid var(--surface-border);">
-                            <td style="padding: 12px 0;">${v.data}</td>
-                            <td>${v.pagamento || 'PIX'}</td>
-                            <td style="color: var(--accent); font-weight: 600;">R$ ${Number(v.total).toFixed(2)}</td>
-                        </tr>
-                    `).join('');
+                if(table) {
+                    table.innerHTML = storage.vendas.length === 0 ? '<tr><td style="color:var(--text-secondary)">Nenhuma transação efetuada no ciclo atual.</td></tr>' :
+                        storage.vendas.map(v => `
+                            <tr style="border-bottom: 1px solid var(--surface-border);">
+                                <td style="padding: 12px 0;">${v.data}</td>
+                                <td>${v.pagamento || 'PIX'}</td>
+                                <td style="color: var(--accent); font-weight: 600;">R$ ${Number(v.total).toFixed(2)}</td>
+                            </tr>
+                        `).join('');
+                }
             }
         };
 
@@ -612,7 +627,8 @@
             render() { this.drawTable(); },
             drawTable(filter = "") {
                 const table = document.getElementById('table-products-registry');
-                const filtered = storage.produtos.filter(p => p.nome.toLowerCase().includes(filter.toLowerCase()));
+                if(!table) return;
+                const filtered = storage.produtos.filter(p => p.nome && p.nome.toLowerCase().includes(filter.toLowerCase()));
                 
                 table.innerHTML = `
                     <thead>
@@ -670,6 +686,7 @@
             basket: [],
             render() {
                 const picker = document.getElementById('sales-catalog-picker');
+                if(!picker) return;
                 picker.innerHTML = storage.produtos.map(p => `
                     <div class="glass-panel" style="display:flex; justify-content:space-between; align-items:center; padding: 14px;">
                         <span><strong>${p.nome}</strong> (Disponível: ${p.quantidade})</span>
@@ -692,12 +709,17 @@
                 const discount = parseFloat(document.getElementById('sales-discount').value) || 0;
                 const grandTotal = Math.max(0, subtotal - discount);
 
-                document.getElementById('sales-lbl-total').innerText = `R$ ${grandTotal.toFixed(2)}`;
-                document.getElementById('sales-basket-list').innerHTML = this.basket.map(p => `
-                    <div style="font-size:14px; margin-bottom:6px; display:flex; justify-content:space-between;">
-                        <span>${p.nome}</span><span>R$ ${Number(p.preco_venda).toFixed(2)}</span>
-                    </div>
-                `).join('');
+                const lblTotal = document.getElementById('sales-lbl-total');
+                if(lblTotal) lblTotal.innerText = `R$ ${grandTotal.toFixed(2)}`;
+                
+                const basketList = document.getElementById('sales-basket-list');
+                if(basketList) {
+                    basketList.innerHTML = this.basket.map(p => `
+                        <div style="font-size:14px; margin-bottom:6px; display:flex; justify-content:space-between;">
+                            <span>${p.nome}</span><span>R$ ${Number(p.preco_venda).toFixed(2)}</span>
+                        </div>
+                    `).join('');
+                }
             },
             async checkout() {
                 if(this.basket.length === 0) return;
@@ -776,6 +798,7 @@
             },
             render() {
                 const t = document.getElementById('table-customers-list');
+                if(!t) return;
                 t.innerHTML = storage.clientes.map(c => `
                     <tr style="border-bottom:1px solid var(--surface-border); font-size:14px;">
                         <td style="padding:10px 0;">${c.nome}</td><td>${c.telefone || 'Não informado'}</td>
@@ -788,7 +811,9 @@
         const Reporter = {
             chartInstance: null,
             render() {
-                const ctx = document.getElementById('analyticsGraphic').getContext('2d');
+                const canvas = document.getElementById('analyticsGraphic');
+                if(!canvas) return;
+                const ctx = canvas.getContext('2d');
                 if(this.chartInstance) this.chartInstance.destroy();
 
                 let totalVendas = storage.vendas.reduce((acc, v) => acc + Number(v.total), 0);
@@ -855,7 +880,14 @@
             render() {
                 const query = document.getElementById('pub-search-bar').value.toLowerCase();
                 const box = document.getElementById('pub-showcase-container');
-                const available = storage.produtos.filter(p => p.nome.toLowerCase().includes(query));
+                if(!box) return;
+                
+                const available = storage.produtos.filter(p => p.nome && p.nome.toLowerCase().includes(query));
+
+                if (available.length === 0) {
+                    box.innerHTML = `<p style="color: var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 40px;">Nenhum produto encontrado no catálogo virtual.</p>`;
+                    return;
+                }
 
                 box.innerHTML = available.map(p => `
                     <div class="glass-panel card-showcase">

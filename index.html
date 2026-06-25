@@ -2,556 +2,652 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LADY 💜 — A inteligência da sua loja</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LADY 💜 - Quarteto da Drikka</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <!-- Script do Supabase v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
-            --primary: #8A2BE2;
-            --purple-glow: #C8A2FF;
+            --purple-main: #8A2BE2;
+            --purple-light: #C8A2FF;
+            --purple-bg: #F4EEFF;
             --white: #FFFFFF;
-            --accent: #FFD700;
-            --bg-app: #120924;
-            --surface: rgba(255, 255, 255, 0.06);
-            --surface-border: rgba(255, 255, 255, 0.1);
-            --text-main: #FFFFFF;
-            --text-sub: #B3A4D4;
-            --success: #00E676;
-            --danger: #FF1744;
+            --gold: #FFD700;
+            --dark: #2A1A4A;
+            --gray-light: #F8F9FA;
+            --gray-text: #6C757D;
+            --danger: #FF4D4D;
+            --success: #2ECC71;
+            --shadow-premium: 0 8px 24px rgba(138, 43, 226, 0.15);
+            --radius-main: 16px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Poppins', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-app);
-            color: var(--text-main);
-            min-height: 100vh;
-        }
-
-        /* Efeito Premium Glassmorphism */
-        .glass-card {
-            background: var(--surface);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid var(--surface-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 15px;
-        }
-
-        .app-header {
-            text-align: center;
-            padding: 25px 15px 10px 15px;
-        }
-
-        .app-header h1 {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--purple-glow);
-        }
-
-        .app-header p {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-top: 2px;
-        }
-
-        /* Grid do Dashboard */
-        .dash-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            padding: 0 15px;
-        }
-
-        .dash-card {
-            background: var(--surface);
-            border: 1px solid var(--surface-border);
-            border-radius: 16px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .dash-card span {
-            font-size: 11px;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        .dash-card h3 {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Menu de Navegação Inferior */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 65px;
-            background: rgba(18, 9, 36, 0.95);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--surface-border);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-sub);
-            font-size: 10px;
-            text-decoration: none;
-            font-weight: 500;
-            gap: 4px;
-            cursor: pointer;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-        }
-
-        .nav-item.active {
-            color: var(--purple-glow);
-        }
-
-        /* Controle de Telas */
-        .app-screen {
-            display: none;
-            padding-bottom: 85px; /* Evita que o conteúdo suma atrás do menu */
-        }
-
-        .screen-active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Formulários */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--surface-border);
-            border-radius: 12px;
-            padding: 14px 15px;
-            color: var(--white);
-            outline: none;
-            font-size: 15px;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-block {
-            width: 100%;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
+            background-color: var(--purple-bg);
+            color: var(--dark);
             display: flex;
             justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Tela de Login */
+        #login-screen {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 36px;
+            color: var(--purple-main);
+            font-weight: 700;
+        }
+
+        .login-header h1 span { color: var(--gold); }
+
+        /* Container Principal do App */
+        .app-container {
+            display: none;
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            min-height: 100vh;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+            padding-bottom: 75px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--purple-main), #5B11A6);
+            color: var(--white);
+            padding: 25px 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: var(--shadow-premium);
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
 
-        .btn-block:active {
-            transform: scale(0.98);
-        }
+        header h1 span { color: var(--gold); }
+        header p { font-size: 11px; opacity: 0.9; font-weight: 300; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Notificações Toasts */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 2000;
-        }
+        .app-screen { display: none; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
+        .app-screen.active { display: block; }
 
-        .toast-msg {
-            background: rgba(30, 16, 61, 0.95);
-            border-left: 4px solid var(--primary);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Miniaturas de Imagem */
-        .thumb-preview {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--surface-border);
-        }
+        h2 { font-size: 18px; color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        /* Lista de Itens */
-        .item-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--surface-border);
-        }
+        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .dash-card { background: var(--white); border: 1px solid rgba(200, 162, 255, 0.3); border-radius: var(--radius-main); padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .dash-card.full-width { grid-column: span 2; background: linear-gradient(135deg, #FAF7FF, var(--white)); border-left: 5px solid var(--purple-main); }
+        .dash-card i { position: absolute; right: 15px; top: 15px; color: var(--purple-light); font-size: 18px; }
+        .dash-card p { font-size: 11px; color: var(--gray-text); font-weight: 500; }
+        .dash-card h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin-top: 5px; }
+
+        .text-success { color: var(--success) !important; }
+        .text-danger { color: var(--danger) !important; }
+
+        .btn-primary { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main); font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--dark); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; transition: 0.2s; background: var(--gray-light); }
+        .form-control:focus { border-color: var(--purple-main); background: var(--white); }
+
+        .list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .item-card { display: flex; align-items: center; background: var(--white); border: 1px solid #F0E6FF; padding: 12px; border-radius: var(--radius-main); gap: 12px; }
+        .item-img-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; color: var(--purple-main); font-size: 20px; overflow: hidden;}
+        .item-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .item-info { flex: 1; }
+        .item-info h4 { font-size: 14px; font-weight: 600; }
+        .item-info p { font-size: 11px; color: var(--gray-text); }
+        .item-actions { display: flex; gap: 8px; }
+        .btn-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 5px; }
+        .btn-icon.edit { color: var(--purple-main); }
+        .btn-icon.delete { color: var(--danger); }
+
+        .chat-container { background: var(--gray-light); border-radius: var(--radius-main); height: 250px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #E2E8F0; }
+        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+        .chat-bubble.lady { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: white; align-self: flex-start; border-top-left-radius: 4px; }
+        .chat-bubble.user { background: var(--purple-light); color: var(--dark); align-self: flex-end; border-top-right-radius: 4px; }
+        .chat-suggestions { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+        .suggestion-tag { background: var(--white); border: 1px solid var(--purple-light); padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--purple-main); font-weight: 500; }
+
+        nav.nav-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999; }
+        .nav-item { background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; display: flex; flex-direction: column; align-items: center; }
+        .nav-item i { font-size: 20px; margin-bottom: 3px; }
+        .nav-item.active { color: var(--purple-main); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--white); border-radius: var(--radius-main); width: 100%; max-width: 400px; padding: 20px; max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .mt-3 { margin-top: 15px; }
+        .mb-3 { margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="toast-container"></div>
-
-    <div id="screen-auth" class="app-screen screen-active" style="padding-top: 15vh;">
-        <div class="glass-card" style="max-width: 400px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <h2 style="color: var(--purple-glow); font-size: 28px;">LADY 💜</h2>
-                <p style="color: var(--text-sub); font-size: 14px;">A inteligência da sua loja</p>
-            </div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>E-mail do Administrador</label>
-                    <input type="email" id="login-email" class="form-control" required placeholder="admin@quartetodadrikka.com">
-                </div>
-                <div class="form-group">
-                    <label>Senha de Acesso</label>
-                    <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn-block" style="margin-top: 20px;">Entrar no Sistema</button>
-            </form>
+    <!-- TELA DE LOGIN INTEGRADA -->
+    <div id="login-screen">
+        <div class="login-header">
+            <h1>LADY <span>💜</span></h1>
+            <p style="color: var(--gray-text); letter-spacing: 1px; font-size: 12px;">QUARTETO DA DRIKKA</p>
         </div>
+        <div class="form-group">
+            <label>E-mail de Acesso</label>
+            <input type="email" id="login-email" class="form-control" placeholder="admin@quartetodadrikka.com">
+        </div>
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label>Senha Secreta</label>
+            <input type="password" id="login-password" class="form-control" placeholder="••••••••">
+        </div>
+        <button class="btn-primary" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Sistema</button>
     </div>
 
-    <div id="app-workspace" style="display: none;">
-        
-        <header class="app-header">
-            <h1>LADY 💜</h1>
-            <p>"A inteligência da sua loja."</p>
+    <!-- CONTAINER DO APP PRINCIPAL -->
+    <div class="app-container" id="main-app">
+        <header>
+            <h1>LADY <span>💜</span></h1>
+            <p>A inteligência da sua loja</p>
         </header>
 
-        <div id="screen-dashboard" class="app-screen">
+        <section id="screen-dashboard" class="app-screen active">
+            <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
             <div class="dash-grid">
-                <div class="dash-card"><span>Faturamento Dia</span><h3 id="db-faturamento-dia" style="color: var(--purple-glow);">R$ 0,00</h3></div>
-                <div class="dash-card"><span>Faturamento Mês</span><h3 id="db-faturamento-mes">R$ 0,00</h3></div>
-                <div class="dash-card"><span>Lucro do Mês</span><h3 id="db-lucro-mes" style="color: var(--success);">R$ 0,00</h3></div>
-                <div class="dash-card"><span>Total Produtos</span><h3 id="db-total-produtos">0</h3></div>
-            </div>
-            
-            <div class="glass-card" style="border-left: 4px solid var(--danger);">
-                <h4 style="font-size: 14px; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> Alertas de Estoque</h4>
-                <div id="db-alertas-estoque" style="font-size: 13px; color: var(--text-sub); margin-top: 5px;">Carregando alertas...</div>
-            </div>
-        </div>
-
-        <div id="screen-stock" class="app-screen">
-            <div class="glass-card">
-                <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-plus"></i> Novo Item</h3>
-                <div class="form-group">
-                    <label>Nome do Produto</label>
-                    <input type="text" id="prod-nome" class="form-control" placeholder="Ex: Vestido Roxo Premium">
+                <div class="dash-card full-width">
+                    <i class="fa-solid fa-money-bill-trend-up text-success"></i>
+                    <p>Faturamento do Mês</p>
+                    <h3 id="dash-faturamento-mes">R$ 0,00</h3>
                 </div>
-                <div class="form-group">
-                    <label>Categoria</label>
-                    <input type="text" id="prod-categoria" class="form-control" placeholder="Ex: Vestidos">
+                <div class="dash-card">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <p>Faturamento Dia</p>
+                    <h3 id="dash-faturamento-dia">R$ 0,00</h3>
                 </div>
-                <div class="form-group">
-                    <label>Quantidade Inicial</label>
-                    <input type="number" id="prod-qtd" class="form-control" placeholder="0">
+                <div class="dash-card">
+                    <i class="fa-solid fa-hand-holding-dollar text-success"></i>
+                    <p>Lucro do Mês</p>
+                    <h3 id="dash-lucro-mes">R$ 0,00</h3>
                 </div>
-                <div class="form-group">
-                    <label>Preço de Custo (R$)</label>
-                    <input type="number" id="prod-custo" class="form-control" placeholder="0.00">
+                <div class="dash-card">
+                    <i class="fa-solid fa-box"></i>
+                    <p>Total Produtos</p>
+                    <h3 id="dash-total-produtos">0</h3>
                 </div>
-                <div class="form-group">
-                    <label>Preço de Venda (R$)</label>
-                    <input type="number" id="prod-preco" class="form-control" placeholder="0.00">
+                <div class="dash-card">
+                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                    <p>Estoque Baixo</p>
+                    <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
                 </div>
-                <div class="form-group">
-                    <label>URL da Imagem do Produto</label>
-                    <input type="text" id="prod-imagem" class="form-control" placeholder="https://linkdaimagem.com/foto.jpg">
-                </div>
-                <button class="btn-block" onclick="AppEngine.saveProduct()"><i class="fa-solid fa-check"></i> Salvar no Supabase</button>
             </div>
 
-            <div class="glass-card">
-                <h3 style="margin-bottom: 15px;">📋 Itens Cadastrados</h3>
-                <div id="stock-list-container">Carregando estoque...</div>
-            </div>
-        </div>
+            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
 
-        <div id="screen-sales" class="app-screen">
-            <div class="glass-card">
-                <h3>🛍️ Registrar Venda Rápida</h3>
-                <div class="form-group" style="margin-top: 15px;">
-                    <label>Selecione o Produto</label>
-                    <select id="sale-product-select" class="form-control"><option value="">Carregando...</option></select>
+            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
+            <div class="chat-suggestions">
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Quais os produtos mais vendidos?')">Mais vendidos</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
+            </div>
+            <div class="chat-container" id="chat-box">
+                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar na gestão hoje? ✨</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
+                <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </section>
+
+        <section id="screen-estoque" class="app-screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
+                <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Novo</button>
+            </div>
+            <input type="text" id="search-produto" class="form-control mb-3" placeholder="🔍 Buscar produto..." oninput="renderEstoque()">
+            <div class="list-container" id="lista-produtos"></div>
+        </section>
+
+        <section id="screen-vendas" class="app-screen">
+            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
+            <div class="form-group">
+                <label>Selecionar Produto</label>
+                <select id="venda-produto-select" class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" id="venda-qtd" class="form-control" value="1" min="1">
+            </div>
+            <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <select id="venda-pagamento" class="form-control">
+                    <option value="Pix">Pix</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Vincular a um Cliente (Opcional)</label>
+                <select id="venda-cliente-select" class="form-control"></select>
+            </div>
+            <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
+
+            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas Realizadas</h3>
+            <div class="list-container" id="lista-vendas-recentes"></div>
+        </section>
+
+        <section id="screen-relatorios" class="app-screen">
+            <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
+            <div class="dash-grid">
+                <div class="dash-card">
+                    <p>Receita Diária</p>
+                    <h3 id="fin-receita-dia" class="text-success">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Receita Mensal</p>
+                    <h3 id="fin-receita-mes" class="text-success">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Custos Totais</p>
+                    <h3 id="fin-despesas" class="text-danger">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Lucro Líquido</p>
+                    <h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Desempenho de Produtos</h2>
+            <div class="dash-card full-width mb-3">
+                <p>⭐ Produto Mais Vendido</p>
+                <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
+            <div class="dash-card full-width mb-3">
+                <p>⚠️ Menor Saída / Encalhado</p>
+                <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
+        </section>
+
+        <section id="screen-configuracoes" class="app-screen">
+            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
+            <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
+                <div class="form-group">
+                    <input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo">
                 </div>
                 <div class="form-group">
-                    <label>Forma de Liquidação</label>
-                    <select id="sale-payment" class="form-control">
-                        <option value="Pix">Pix</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                        <option value="Débito">Cartão de Débito</option>
-                        <option value="Crédito">Cartão de Crédito</option>
-                    </select>
+                    <input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp">
                 </div>
-                <button class="btn-block" style="background: var(--accent); color: #120924;" onclick="AppEngine.checkoutSale()"><i class="fa-solid fa-bag-shopping"></i> Concluir Registro</button>
+                <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
             </div>
-        </div>
+            <h3>Lista de Clientes</h3>
+            <div class="list-container" id="lista-clientes"></div>
+        </section>
 
-        <div id="screen-reports" class="app-screen">
-            <div class="glass-card">
-                <h3>📊 Balanço e Desempenho</h3>
-                <p style="color: var(--text-sub); font-size: 14px; margin-top: 5px; margin-bottom: 15px;">Indicadores analíticos gerados em tempo real na nuvem.</p>
-                <div id="reports-output" style="line-height: 1.6;">Carregando métricas...</div>
-            </div>
-        </div>
-
-        <div id="screen-settings" class="app-screen">
-            <div class="glass-card" style="background: rgba(138, 43, 226, 0.1); border-color: var(--purple-glow);">
-                <h3 style="color: var(--purple-glow);"><i class="fa-solid fa-wand-magic-sparkles"></i> Lady IA</h3>
-                <p style="font-size: 13px; color: var(--text-sub); margin-top: 4px; margin-bottom: 15px;">Consulte faturamento, lucros ou o estoque atual da Quarteto da Drikka.</p>
-                <div class="form-group">
-                    <input type="text" id="ai-query" class="form-control" placeholder="Ex: Quanto faturamos no total?">
-                </div>
-                <button class="btn-block" onclick="AppEngine.askIA()">Perguntar à Inteligência</button>
-                <div id="ai-response" style="margin-top: 15px; font-size: 14px; line-height: 1.5; color: var(--white); font-style: italic;"></div>
-            </div>
-
-            <div style="padding: 0 15px;">
-                <button class="btn-block" style="background: var(--danger);" onclick="AppEngine.logout()"><i class="fa-solid fa-power-off"></i> Sair da Conta</button>
-            </div>
-        </div>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="AppEngine.navigate('dashboard', this)"><i class="fa-solid fa-house"></i>Dashboard</div>
-            <div class="nav-item" onclick="AppEngine.navigate('stock', this)"><i class="fa-solid fa-box"></i>Estoque</div>
-            <div class="nav-item" onclick="AppEngine.navigate('sales', this)"><i class="fa-solid fa-bag-shopping"></i>Vendas</div>
-            <div class="nav-item" onclick="AppEngine.navigate('reports', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</div>
-            <div class="nav-item" onclick="AppEngine.navigate('settings', this)"><i class="fa-solid fa-gears"></i>Lady IA</div>
+        <nav class="nav-bottom">
+            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dashboard</button>
+            <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
+            <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
+            <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
+            <button class="nav-item" onclick="switchScreen('configuracoes', this)"><i class="fa-solid fa-gear"></i>Config</button>
         </nav>
+    </div>
 
+    <!-- MODAL DE PRODUTO -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" style="color: var(--purple-main);">Cadastrar Produto</h3>
+                <button class="btn-icon" onclick="closeProductModal()" style="font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="prod-id">
+            <div class="form-group">
+                <label>Imagem do Produto</label>
+                <input type="file" id="prod-img" class="form-control" accept="image/*" onchange="triggerImageBase64(this)">
+                <input type="hidden" id="prod-img-base64">
+            </div>
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input type="text" id="prod-nome" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <input type="text" id="prod-categoria" class="form-control" placeholder="Ex: Vestidos, Conjuntos">
+            </div>
+            <div class="form-group">
+                <label>Quantidade em Estoque</label>
+                <input type="number" id="prod-qtd" class="form-control" min="0" required>
+            </div>
+            <div class="form-group">
+                <label>Preço de Custo (R$)</label>
+                <input type="number" id="prod-custo" class="form-control" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Preço de Venda (R$)</label>
+                <input type="number" id="prod-venda" class="form-control" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="prod-desc" class="form-control" rows="2"></textarea>
+            </div>
+            <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
+        </div>
     </div>
 
     <script>
-        // Inicialização do cliente Supabase
-        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co"; 
-        const SUPABASE_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cGFmeXhqYnRueXhleHNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTI3MTYsImV4cCI6MjA5Nzk2ODcxNn0.i1pTy_5KdIy8rHCGMVnzTHPHDOPJaEwXDEOZ94Iy3vs";
-        const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+        // Configuração do Supabase Client
+        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cGFmeXhidG55eGV4c3FiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY4MDUxMDgsImV4cCI6MjAzMjM4MTEwOH0.1_YOUR_ACTUAL_FULL_TOKEN_HERE"; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Repositório de Memória em Cache
-        let appData = { produtos: [], vendas: [] };
+        let DB = { produtos: [], vendas: [], clientes: [] };
 
-        const AppEngine = {
-            notify(msg) {
-                const container = document.getElementById('toast-container');
-                const box = document.createElement('div');
-                box.className = 'toast-msg';
-                box.innerText = msg;
-                container.appendChild(box);
-                setTimeout(() => box.remove(), 3500);
-            },
-
-            navigate(screenTarget, element) {
-                document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('screen-active'));
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                
-                document.getElementById(`screen-${screenTarget}`).classList.add('screen-active');
-                if(element) element.classList.add('active');
-            },
-
-            async pullCloudData() {
-                if(!_supabase) return;
-                try {
-                    const { data: prod } = await _supabase.from('produtos').select('*');
-                    if (prod) appData.produtos = prod;
-
-                    const { data: vend } = await _supabase.from('vendas').select('*');
-                    if (vend) appData.vendas = vend;
-
-                    this.syncInterfaceComponents();
-                } catch (e) {
-                    console.error("Erro na sincronização:", e);
-                }
-            },
-
-            syncInterfaceComponents() {
-                // Totalizadores do Dashboard
-                document.getElementById('db-total-produtos').innerText = appData.produtos.length;
-                
-                const totalMês = appData.vendas.reduce((acc, v) => acc + Number(v.total || 0), 0);
-                document.getElementById('db-faturamento-mes').innerText = `R$ ${totalMês.toFixed(2)}`;
-                document.getElementById('db-faturamento-dia').innerText = `R$ ${totalMês.toFixed(2)}`; // Simplificado para demonstração
-
-                // Alertas de estoque baixo (<= 3 unidades)
-                const baixos = appData.produtos.filter(p => (p.quantidade || 0) <= 3);
-                document.getElementById('db-alertas-estoque').innerHTML = baixos.length > 0 
-                    ? `Atenção! Os seguintes itens estão acabando: <strong>${baixos.map(p => p.nome).join(', ')}</strong>.`
-                    : "Todos os produtos operam com segurança.";
-
-                // Renderizar Lista de Estoque Completa com Miniaturas
-                const stockBox = document.getElementById('stock-list-container');
-                stockBox.innerHTML = appData.produtos.map(p => `
-                    <div class="item-row">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <img class="thumb-preview" src="${p.imagem || 'https://images.unsplash.com/photo-1534126511673-b6899657816a?w=100'}" alt="">
-                            <div>
-                                <strong>${p.nome}</strong><br>
-                                <span style="font-size:12px; color:var(--text-sub);">${p.categoria || 'Geral'}</span>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <span style="color:var(--accent); font-weight:600;">R$ ${Number(p.preco_venda || 0).toFixed(2)}</span><br>
-                            <span style="font-size:12px;">Qtd: ${p.quantidade || 0}</span>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Preencher Seleção na Tela de Vendas
-                const selectVendas = document.getElementById('sale-product-select');
-                selectVendas.innerHTML = '<option value="">-- Escolha um item --</option>' + 
-                    appData.produtos.map(p => `<option value="${p.id}">${p.nome} (R$ ${Number(p.preco_venda).toFixed(2)})</option>`).join('');
-
-                // Renderizar Relatórios Básicos
-                document.getElementById('reports-output').innerHTML = `
-                    <p>• <strong>Faturamento Geral Acumulado:</strong> R$ ${totalMês.toFixed(2)}</p>
-                    <p>• <strong>Categorias Monitoradas:</strong> ${[...new Set(appData.produtos.map(p => p.categoria))].filter(Boolean).join(', ') || 'Nenhuma'}</p>
-                    <p>• <strong>Índice de Alertas:</strong> ${baixos.length} itens demandam reposição imediata.</p>
-                `;
-            },
-
-            async saveProduct() {
-                const nome = document.getElementById('prod-nome').value.trim();
-                const categoria = document.getElementById('prod-categoria').value.trim();
-                const quantidade = parseInt(document.getElementById('prod-qtd').value) || 0;
-                const preco_custo = parseFloat(document.getElementById('prod-custo').value) || 0;
-                const preco_venda = parseFloat(document.getElementById('prod-preco').value) || 0;
-                const imagem = document.getElementById('prod-imagem').value.trim();
-
-                if(!nome || preco_venda <= 0) {
-                    this.notify("Preencha ao menos o nome e preço de venda!");
-                    return;
-                }
-
-                const payload = { nome, categoria, quantidade, preco_custo, preco_venda, imagem, codigo: 'PR-'+Math.floor(Math.random()*1000) };
-
-                if(_supabase) {
-                    const { error } = await _supabase.from('produtos').insert([payload]);
-                    if(!error) {
-                        this.notify("Produto salvo com sucesso na nuvem! ✨");
-                        this.clearInputs(['prod-nome', 'prod-categoria', 'prod-qtd', 'prod-custo', 'prod-preco', 'prod-imagem']);
-                        await this.pullCloudData();
-                    } else {
-                        this.notify("Erro ao salvar dados no Supabase.");
-                    }
-                }
-            },
-
-            async checkoutSale() {
-                const select = document.getElementById('sale-product-select');
-                const prodId = select.value;
-                if(!prodId) {
-                    this.notify("Selecione um item válido.");
-                    return;
-                }
-
-                const original = appData.produtos.find(p => String(p.id) === String(prodId));
-                if(original && original.quantidade > 0) {
-                    const novaQtd = original.quantidade - 1;
-                    
-                    // Atualiza Estoque e insere registro de venda
-                    await _supabase.from('produtos').update({ quantidade: novaQtd }).eq('id', original.id);
-                    await _supabase.from('vendas').insert([{ total: original.preco_venda, pagamento: document.getElementById('sale-payment').value, data: new Date().toISOString().split('T')[0] }]);
-                    
-                    this.notify("Venda registrada e estoque abatido!");
-                    await this.pullCloudData();
-                    this.navigate('dashboard');
-                } else {
-                    this.notify("Este item não possui estoque suficiente.");
-                }
-            },
-
-            askIA() {
-                const query = document.getElementById('ai-query').value.toLowerCase();
-                const box = document.getElementById('ai-response');
-                let answer = "Instrução não reconhecida. Pergunte sobre o faturamento ou estoque.";
-
-                if(query.includes('faturamento') || query.includes('quanto faturamos') || query.includes('vendas')) {
-                    const total = appData.vendas.reduce((acc, v) => acc + Number(v.total || 0), 0);
-                    answer = `✨ Lady IA analisa: O faturamento total computado no Supabase atualmente é de R$ ${total.toFixed(2)}.`;
-                } else if(query.includes('estoque') || query.includes('produtos')) {
-                    answer = `✨ Lady IA analisa: Monitoramos atualmente ${appData.produtos.length} produtos em tempo real na nuvem corporativa da Quarteto da Drikka.`;
-                }
-
-                box.innerText = answer;
-            },
-
-            clearInputs(ids) {
-                ids.forEach(id => document.getElementById(id).value = '');
-            },
-
-            logout() {
-                document.getElementById('app-workspace').style.display = 'none';
-                document.getElementById('screen-auth').style.display = 'block';
-                this.navigate('auth');
-                this.notify("Sessão encerrada.");
-            }
-        };
-
-        // Escuta e valida o Formulário de Autenticação Gate Local
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function realizarLogin() {
             const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-password').value.trim();
+            const password = document.getElementById('login-password').value.trim();
 
-            if (email === "admin@quartetodadrikka.com" && pass === "Drikka@2026") {
-                AppEngine.notify("Acesso concedido!");
-                document.getElementById('screen-auth').style.display = 'none';
-                document.getElementById('app-workspace').style.display = 'block';
-                AppEngine.navigate('dashboard');
-                await AppEngine.pullCloudData();
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert("Erro no login: " + error.message);
             } else {
-                AppEngine.notify("Dados de acesso incorretos!");
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                await pullFromSupabase();
             }
-        });
+        }
+
+        async function pullFromSupabase() {
+            let p = await _supabase.from('lady_produtos').select('*');
+            let v = await _supabase.from('lady_vendas').select('*');
+            let c = await _supabase.from('lady_clientes').select('*');
+
+            DB.produtos = p.data || [];
+            DB.vendas = v.data || [];
+            DB.clientes = c.data || [];
+
+            calcularMetricas();
+            renderEstoque();
+            preencherSelectsVenda();
+            renderClientes();
+        }
+
+        function switchScreen(screenId, element) {
+            document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            element.classList.add('active');
+            pullFromSupabase();
+        }
+
+        function triggerImageBase64(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById('prod-img-base64').value = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openProductModal(id = null) {
+            document.getElementById('product-modal').style.display = 'flex';
+            if(id) {
+                document.getElementById('modal-title').innerText = "Editar Produto";
+                const p = DB.produtos.find(prod => prod.id === id);
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-nome').value = p.nome;
+                document.getElementById('prod-categoria').value = p.categoria;
+                document.getElementById('prod-qtd').value = p.qtd;
+                document.getElementById('prod-custo').value = p.custo;
+                document.getElementById('prod-venda').value = p.venda;
+                document.getElementById('prod-desc').value = p.descricao;
+                document.getElementById('prod-img-base64').value = p.imagem || '';
+            } else {
+                document.getElementById('modal-title').innerText = "Cadastrar Produto";
+                document.getElementById('prod-id').value = '';
+                document.getElementById('prod-nome').value = '';
+                document.getElementById('prod-categoria').value = '';
+                document.getElementById('prod-qtd').value = '';
+                document.getElementById('prod-custo').value = '';
+                document.getElementById('prod-venda').value = '';
+                document.getElementById('prod-desc').value = '';
+                document.getElementById('prod-img-base64').value = '';
+            }
+        }
+
+        function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
+
+        async function salvarProduto() {
+            const id = document.getElementById('prod-id').value;
+            const nome = document.getElementById('prod-nome').value;
+            const categoria = document.getElementById('prod-categoria').value;
+            const qtd = parseInt(document.getElementById('prod-qtd').value) || 0;
+            const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
+            const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
+            const descricao = document.getElementById('prod-desc').value;
+            const imagem = document.getElementById('prod-img-base64').value;
+
+            if(!nome || qtd < 0 || custo <= 0 || venda <= 0) return alert('Campos obrigatórios inválidos.');
+
+            const payload = { nome, categoria, qtd, custo, venda, descricao, imagem };
+
+            if(id) {
+                await _supabase.from('lady_produtos').update(payload).eq('id', id);
+            } else {
+                await _supabase.from('lady_produtos').insert([payload]);
+            }
+
+            closeProductModal();
+            await pullFromSupabase();
+        }
+
+        async function excluirProduto(id) {
+            if(confirm("Deseja deletar este produto?")) {
+                await _supabase.from('lady_produtos').delete().eq('id', id);
+                await pullFromSupabase();
+            }
+        }
+
+        function renderEstoque() {
+            const lista = document.getElementById('lista-produtos');
+            const busca = document.getElementById('search-produto').value.toLowerCase();
+            lista.innerHTML = '';
+            const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
+
+            filtrados.forEach(p => {
+                const imgTag = p.imagem ? `<img src="${p.imagem}">` : `<i class="fa-solid fa-image"></i>`;
+                lista.innerHTML += `
+                    <div class="item-card">
+                        <div class="item-img-thumb">${imgTag}</div>
+                        <div class="item-info">
+                            <h4>${p.nome}</h4>
+                            <p>Preço: <b>R$ ${Number(p.venda).toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon delete" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function cadastrarCliente() {
+            const nome = document.getElementById('cliente-nome').value;
+            const fone = document.getElementById('cliente-fone').value;
+            if(!nome || !fone) return alert('Preencha os campos!');
+
+            await _supabase.from('lady_clientes').insert([{ nome, fone, comprasCount: 0 }]);
+            document.getElementById('cliente-nome').value = '';
+            document.getElementById('cliente-fone').value = '';
+            await pullFromSupabase();
+        }
+
+        function renderClientes() {
+            const lista = document.getElementById('lista-clientes');
+            lista.innerHTML = '';
+            DB.clientes.forEach(c => {
+                lista.innerHTML += `
+                    <div class="item-card">
+                        <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
+                        <div class="item-info">
+                            <h4>${c.nome}</h4>
+                            <p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function preencherSelectsVenda() {
+            const prodSelect = document.getElementById('venda-produto-select');
+            const cliSelect = document.getElementById('venda-cliente-select');
+            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+            DB.produtos.forEach(p => prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${Number(p.venda).toFixed(2)}</option>`);
+            
+            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
+            DB.clientes.forEach(c => cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
+            renderVendasRecentes();
+        }
+
+        async function registrarVenda() {
+            const prodId = document.getElementById('venda-produto-select').value;
+            const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
+            const pagamento = document.getElementById('venda-pagamento').value;
+            const clienteId = document.getElementById('venda-cliente-select').value;
+
+            if(!prodId || qtd <= 0) return alert('Selecione dados válidos.');
+            const produto = DB.produtos.find(p => p.id == prodId);
+            if(produto.qtd < qtd) return alert('Estoque insuficiente!');
+
+            let novoEstoque = produto.qtd - qtd;
+            await _supabase.from('lady_produtos').update({ qtd: novoEstoque }).eq('id', prodId);
+
+            if(clienteId) {
+                const cliente = DB.clientes.find(c => c.id == clienteId);
+                await _supabase.from('lady_clientes').update({ comprasCount: (cliente.comprasCount || 0) + 1 }).eq('id', clienteId);
+            }
+
+            await _supabase.from('lady_vendas').insert([{
+                data: new Date().toISOString().split('T')[0],
+                produtoNome: produto.nome,
+                produtoId: produto.id,
+                qtd,
+                total: produto.venda * qtd,
+                lucro: (produto.venda * qtd) - (produto.custo * qtd),
+                custo: produto.custo * qtd,
+                pagamento
+            }]);
+
+            alert('Venda registrada com sucesso!');
+            await pullFromSupabase();
+        }
+
+        function renderVendasRecentes() {
+            const lista = document.getElementById('lista-vendas-recentes');
+            lista.innerHTML = '';
+            [...DB.vendas].reverse().slice(0, 5).forEach(v => {
+                lista.innerHTML += `
+                    <div class="item-card" style="border-left: 4px solid var(--success);">
+                        <div class="item-info">
+                            <h4>${v.produtoNome} (x${v.qtd})</h4>
+                            <p>Método: <b>${v.pagamento}</b></p>
+                        </div>
+                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${Number(v.total).toFixed(2)}</span></div>
+                    </div>`;
+            });
+        }
+
+        function calcularMetricas() {
+            const hoje = new Date().toISOString().split('T')[0];
+            let fatDia = 0, fatMes = 0, lucroMes = 0, despesas = 0;
+
+            DB.vendas.forEach(v => {
+                if(v.data === hoje) fatDia += Number(v.total);
+                fatMes += Number(v.total);
+                lucroMes += Number(v.lucro);
+            });
+
+            DB.produtos.forEach(p => { despesas += (Number(p.custo) * p.qtd); });
+
+            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+            document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
+            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
+
+            document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+            document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+            document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
+            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            if(!input.value.trim()) return;
+            renderBubble(input.value, 'user');
+            processarRespostaIA(input.value);
+            input.value = '';
+        }
+
+        function askLadyIA(msg) { renderBubble(msg, 'user'); processarRespostaIA(msg); }
+        function renderBubble(txt, side) { const b = document.getElementById('chat-box'); b.innerHTML += `<div class="chat-bubble ${side}">${txt}</div>`; b.scrollTop = b.scrollHeight; }
+
+        function processarRespostaIA(pergunta) {
+            const p = pergunta.toLowerCase();
+            let r = "Posso te dar dados sobre Faturamento, Estoque ou Lucro da sua loja!";
+            
+            if (p.includes('faturamento')) {
+                r = `O faturamento bruto atual da loja na nuvem é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.total),0).toFixed(2)}**.`;
+            } else if (p.includes('lucro')) {
+                r = `Seu lucro limpo calculado com base nos custos é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.lucro),0).toFixed(2)}**.`;
+            } else if (p.includes('estoque')) {
+                r = `Temos um total de **${DB.produtos.reduce((a,p)=>a+p.qtd,0)} itens** físicos em nosso acervo.`;
+            }
+            setTimeout(() => renderBubble(r, 'lady'), 300);
+        }
+
+        window.onload = () => {
+            document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat(); });
+        };
     </script>
 </body>
 </html>
-

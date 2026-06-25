@@ -380,6 +380,18 @@
         const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co";
         const SUPABASE_KEY = "sb_publishable_ND1CE4iBtRZ-XxJVi6HmpQ_P0XEZecy"; 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Verifica se o usuário já está logado ao carregar a página
+window.addEventListener('DOMContentLoaded', async () => {
+    const { data: { session } } = await _supabase.auth.getSession();
+    
+    if (session) {
+        // Se existir uma sessão, esconde o login e mostra o app
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        await pullFromSupabase();
+    }
+});
+
 
         let DB = { produtos: [], vendas: [], clientes: [] };
 

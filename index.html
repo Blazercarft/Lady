@@ -280,5 +280,493 @@
                 <a href="#" id="auth-toggle-mode" style="color: var(--purple-glow); text-decoration: none; font-weight: 600;">Não possui conta? Cadastre-se</a>
             </div>
             <div style="text-align: center; margin-top: 16px;">
-                <button class="btn-action btn-
+                <button class="btn-action btn-accent" style="width: 100%;" onclick="Engine.goto('#/catalog')"><i class="fa-solid fa-store"></i> Ver Vitrine Pública</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-workspace" class="layout-wrapper" style="display: none;">
+        <aside class="app-sidebar">
+            <div class="nav-brand">
+                <h1>💜 Lady ERP</h1>
+                <span id="user-role-indicator" style="font-size: 11px; background: var(--accent); color:#1E103D; padding: 2px 8px; border-radius: 99px; font-weight:700;">ADMINISTRADOR</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a class="nav-link" onclick="Engine.goto('#/dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                <li><a class="nav-link" onclick="Engine.goto('#/products')"><i class="fa-solid fa-boxes-stacked"></i> Produtos</a></li>
+                <li><a class="nav-link" onclick="Engine.goto('#/sales')"><i class="fa-solid fa-cash-register"></i> Nova Venda</a></li>
+                <li><a class="nav-link fin-restrict" onclick="Engine.goto('#/financial')"><i class="fa-solid fa-coins"></i> Financeiro</a></li>
+                <li><a class="nav-link" onclick="Engine.goto('#/customers')"><i class="fa-solid fa-address-book"></i> Clientes</a></li>
+                <li><a class="nav-link fin-restrict" onclick="Engine.goto('#/analytics')"><i class="fa-solid fa-file-chart-pie"></i> Relatórios</a></li>
+                <li><a class="nav-link" onclick="Engine.goto('#/ai-assistant')"><i class="fa-solid fa-wand-magic-sparkles"></i> Lady IA</a></li>
+                <li><a class="nav-link" onclick="Engine.goto('#/settings')"><i class="fa-solid fa-sliders"></i> Ajustes</a></li>
+            </ul>
+
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-action" onclick="Engine.switchTheme()" style="background: rgba(255,255,255,0.05); color: var(--text-primary);"><i class="fa-solid fa-circle-half-stroke"></i> Alternar Tema</button>
+                <button class="btn-action" onclick="AuthGate.signOut()" style="background: var(--danger); color: white;"><i class="fa-solid fa-power-off"></i> Sair</button>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <section id="pane-dashboard" class="view-pane">
+                <h2 style="font-size: 26px; margin-bottom: 28px;">Indicadores de Desempenho</h2>
+                <div class="dashboard-summary-grid">
+                    <div class="glass-panel"><h4 style="color:var(--text-secondary); font-size:13px;">VENDAS DO DIA</h4><p id="dash-txt-dia" style="font-size: 26px; font-weight:700; color: var(--purple-glow); margin-top:8px;">R$ 0,00</p></div>
+                    <div class="glass-panel"><h4 style="color:var(--text-secondary); font-size:13px;">FATURAMENTO MÊS</h4><p id="dash-txt-mes" style="font-size: 26px; font-weight:700; color: var(--purple-glow); margin-top:8px;">R$ 0,00</p></div>
+                    <div class="glass-panel fin-restrict"><h4 style="color:var(--text-secondary); font-size:13px;">LUCRO LÍQUIDO MÊS</h4><p id="dash-txt-lucro" style="font-size: 26px; font-weight:700; color: var(--success); margin-top:8px;">R$ 0,00</p></div>
+                    <div class="glass-panel"><h4 style="color:var(--text-secondary); font-size:13px;">ESTOQUE ALERTA</h4><p id="dash-txt-alertas" style="font-size: 26px; font-weight:700; color: var(--danger); margin-top:8px;">0 Itens</p></div>
+                </div>
+                <div class="glass-panel">
+                    <h3 style="margin-bottom: 16px; font-size: 18px;">Histórico de Operações Recentes</h3>
+                    <div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; text-align: left;" id="dash-table-vendas"></table></div>
+                </div>
+            </section>
+
+            <section id="pane-products" class="view-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+                    <h2>Gestão Integrada de Produtos</h2>
+                    <button class="btn-action btn-primary" onclick="ProductManager.createEntry()"><i class="fa-solid fa-plus"></i> Novo Item</button>
+                </div>
+                <div class="glass-panel">
+                    <input type="text" class="form-field" placeholder="Filtrar por nome ou especificação..." oninput="ProductManager.drawTable(this.value)" style="margin-bottom: 20px;">
+                    <div style="overflow-x: auto;"><table style="width: 100%; text-align: left;" id="table-products-registry"></table></div>
+                </div>
+            </section>
+
+            <section id="pane-sales" class="view-pane">
+                <h2>Terminal de Ponto de Venda (PDV)</h2>
+                <div style="display: grid; grid-template-columns: 1fr 360px; gap: 28px; margin-top: 24px;">
+                    <div class="glass-panel">
+                        <h3 style="font-size: 16px; margin-bottom: 16px;">Itens Disponíveis</h3>
+                        <div id="sales-catalog-picker" style="display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="glass-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <h3 style="font-size: 16px; margin-bottom: 16px;">Carrinho Ativo</h3>
+                            <div id="sales-basket-list" style="margin-bottom: 20px;"></div>
+                            <div class="form-group"><label>Desconto Concedido (R$)</label><input type="number" id="sales-discount" class="form-field" value="0" oninput="SalesDesk.refreshTotals()"></div>
+                            <div class="form-group">
+                                <label>Forma de Liquidação</label>
+                                <select id="sales-payment-method" class="form-field"><option value="PIX">PIX</option><option value="Dinheiro">Dinheiro</option><option value="Débito">Cartão de Débito</option><option value="Crédito">Cartão de Crédito</option></select>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 style="margin: 20px 0; font-size: 24px; color: var(--accent);">Total: <span id="sales-lbl-total">R$ 0,00</span></h2>
+                            <button class="btn-action btn-primary" style="width: 100%;" onclick="SalesDesk.checkout()">Concluir Registro</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pane-financial" class="view-pane fin-restrict">
+                <h2>Fluxo de Caixa e Lançamentos</h2>
+                <div class="dashboard-summary-grid" style="margin-top: 24px;">
+                    <div class="glass-panel" style="border-top: 4px solid var(--success);">
+                        <h3>Nova Receita</h3>
+                        <div class="form-group" style="margin-top:12px;"><label>Valor (R$)</label><input type="number" id="fin-in-val" class="form-field" placeholder="0.00"></div>
+                        <button class="btn-action btn-primary" style="width: 100%;" onclick="FinancialLedger.post(1)">Lançar Crédito</button>
+                    </div>
+                    <div class="glass-panel" style="border-top: 4px solid var(--danger);">
+                        <h3>Nova Despesa</h3>
+                        <div class="form-group" style="margin-top:12px;"><label>Valor (R$)</label><input type="number" id="fin-out-val" class="form-field" placeholder="0.00"></div>
+                        <button class="btn-action" style="width: 100%; background: var(--danger); color: white;" onclick="FinancialLedger.post(2)">Lançar Débito</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pane-customers" class="view-pane">
+                <h2>Fichário de Clientes</h2>
+                <div class="glass-panel" style="margin-top: 24px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; margin-bottom: 20px;">
+                        <input type="text" id="cust-name" class="form-field" placeholder="Nome Completo">
+                        <input type="text" id="cust-phone" class="form-field" placeholder="WhatsApp / Telefone">
+                        <button class="btn-action btn-primary" onclick="CustomerRegistry.save()">Adicionar</button>
+                    </div>
+                    <div style="overflow-x:auto;"><table style="width: 100%; text-align: left;" id="table-customers-list"></table></div>
+                </div>
+            </section>
+
+            <section id="pane-analytics" class="view-pane fin-restrict">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2>Relatórios Consolidados</h2>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action" style="background:#207346; color:white; font-size:13px;" onclick="Reporter.exportExcel()"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                        <button class="btn-action" style="background:#E24A42; color:white; font-size:13px;" onclick="Reporter.exportPDF()"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                    </div>
+                </div>
+                <div class="glass-panel"><canvas id="analyticsGraphic" style="max-height: 340px;"></canvas></div>
+            </section>
+
+            <section id="pane-ai-assistant" class="view-pane">
+                <h2>Lady IA — Assistência Inteligente</h2>
+                <div class="glass-panel" style="margin-top: 24px; min-height: 440px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div id="ai-chat-board" style="flex: 1; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 16px; overflow-y: auto; margin-bottom: 20px;">
+                        <p style="color: var(--purple-glow);">✨ Olá! Sou a Lady IA. Posso analisar seus indicadores de vendas, lucratividade e flutuações de estoque em tempo real. O que deseja saber?</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <input type="text" id="ai-chat-input" class="form-field" placeholder="Pergunte sobre faturamento diário, mensal ou alertas de estoque...">
+                        <button class="btn-action btn-primary" onclick="LadyIA.compute()"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pane-settings" class="view-pane">
+                <h2>Personalização e Parâmetros</h2>
+                <div class="glass-panel" style="margin-top: 24px; max-width: 560px;">
+                    <div class="form-group"><label>Identidade Corporativa da Loja</label><input type="text" id="set-store-name" class="form-field"></div>
+                    <div class="form-group"><label>WhatsApp Oficial de Vendas</label><input type="text" id="set-store-phone" class="form-field"></div>
+                    <button class="btn-action btn-primary" onclick="Engine.saveParams()">Gravar Parâmetros</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="view-catalog" class="view-pane" style="padding: 40px 20px; max-width: 1300px; margin: 0 auto;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h1 id="pub-brand-title" style="font-size: 32px; color: var(--purple-glow);">Quarteto da Drikka</h1>
+                <p style="color: var(--text-secondary);">Vitrine Online Exclusiva</p>
+            </div>
+            <button class="btn-action btn-primary" onclick="Showcase.share()"><i class="fa-solid fa-share-nodes"></i> Compartilhar Vitrine</button>
+        </header>
+
+        <div class="glass-panel" style="margin-bottom: 40px;">
+            <input type="text" id="pub-search-bar" class="form-field" placeholder="O que você está procurando hoje?..." oninput="Showcase.render()">
+        </div>
+
+        <div id="pub-showcase-container" class="showcase-grid"></div>
+    </div>
+
+
+    <script>
+        // CONFIGURAÇÃO DO SUPABASE CONSOLIDADA COM CHAVE CORRETA
+        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co"; 
+        const SUPABASE_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cGFmeXhqYnRueXhleHNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTI3MTYsImV4cCI6MjA5Nzk2ODcxNn0.i1pTy_5KdIy8rHCGMVnzTHPHDOPJaEwXDEOZ94Iy3vs";
+        const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+        // Memória local reabastecida dinamicamente pelo banco de dados
+        let storage = {
+            produtos: [],
+            vendas: [],
+            clientes: [],
+            financeiro: { receitas: 0, despesas: 0 },
+            configuracoes: { name: "Quarteto da Drikka", telefone: "5599999999999" }
+        };
+
+        let activeSession = null;
+    </script>
+
+    <script>
+        const Engine = {
+            async init() {
+                window.addEventListener('hashchange', () => this.router());
+                this.router();
+                this.syncParams();
+                if (_supabase) {
+                    await this.pullDatabase();
+                }
+            },
+            notify(text) {
+                const box = document.getElementById('toast-wrapper');
+                const toast = document.createElement('div');
+                toast.className = 'toast-alert';
+                toast.innerText = text;
+                box.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
+            },
+            async pullDatabase() {
+                try {
+                    const { data: prod } = await _supabase.from('produtos').select('*');
+                    if (prod) storage.produtos = prod;
+
+                    const { data: vend } = await _supabase.from('vendas').select('*');
+                    if (vend) storage.vendas = vend;
+
+                    const { data: cust } = await _supabase.from('clientes').select('*');
+                    if (cust) storage.clientes = cust;
+
+                    this.triggerViewRender(window.location.hash);
+                } catch (e) {
+                    console.error("Erro ao sincronizar tabelas do banco:", e);
+                }
+            },
+            router() {
+                const route = window.location.hash || '#/';
+                document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('pane-active'));
+
+                if(route === '#/catalog') {
+                    document.getElementById('view-catalog').classList.add('pane-active');
+                    Showcase.render();
+                    return;
+                }
+
+                if(!activeSession) {
+                    document.getElementById('view-auth').classList.add('pane-active');
+                    document.getElementById('view-workspace').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('view-auth').classList.remove('pane-active');
+                document.getElementById('view-workspace').style.display = 'flex';
+
+                const sectionId = 'pane-' + route.replace('#/', '');
+                const targetPane = document.getElementById(sectionId) || document.getElementById('pane-dashboard');
+                targetPane.classList.add('pane-active');
+
+                document.querySelectorAll('.fin-restrict').forEach(el => {
+                    el.style.display = activeSession.role === 'Administrador' ? '' : 'none';
+                });
+
+                this.triggerViewRender(route);
+            },
+            goto(hash) {
+                window.location.hash = hash;
+            },
+            switchTheme() {
+                document.body.classList.toggle('light-theme');
+            },
+            syncParams() {
+                document.getElementById('set-store-name').value = storage.configuracoes.name;
+                document.getElementById('set-store-phone').value = storage.configuracoes.telefone;
+                document.getElementById('pub-brand-title').innerText = storage.configuracoes.name;
+            },
+            saveParams() {
+                storage.configuracoes.name = document.getElementById('set-store-name').value;
+                storage.configuracoes.telefone = document.getElementById('set-store-phone').value;
+                this.syncParams();
+                this.notify("Parâmetros corporativos consolidados.");
+            },
+            triggerViewRender(route) {
+                DashboardHome.render();
+                if(route.includes('products')) ProductManager.render();
+                if(route.includes('sales')) SalesDesk.render();
+                if(route.includes('customers')) CustomerRegistry.render();
+                if(route.includes('analytics')) Reporter.render();
+            }
+        };
+
+        // INTERFACE DIRETA COM O SUPABASE AUTHENTICATION
+        const AuthGate = {
+            isRegister: false,
+            init() {
+                document.getElementById('auth-toggle-mode').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.isRegister = !this.isRegister;
+                    document.getElementById('group-auth-name').style.display = this.isRegister ? 'block' : 'none';
+                    document.getElementById('auth-submit-btn').innerText = this.isRegister ? 'Criar Nova Conta' : 'Entrar no Sistema';
+                    document.getElementById('auth-toggle-mode').innerText = this.isRegister ? 'Já tem conta? Faça Login' : 'Não possui conta? Cadastre-se';
+                });
+
+                document.getElementById('form-auth-gate').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('auth-field-email').value;
+                    const pass = document.getElementById('auth-field-password').value;
+                    const name = document.getElementById('auth-field-name').value;
+
+                    if(!_supabase) {
+                        Engine.notify("Erro de infraestrutura: Verifique a URL do Supabase.");
+                        return;
+                    }
+
+                    if (this.isRegister) {
+                        const { data, error } = await _supabase.auth.signUp({
+                            email: email,
+                            password: pass,
+                            options: { data: { full_name: name } }
+                        });
+
+                        if(error) {
+                            Engine.notify("Erro no Supabase: " + error.message);
+                        } else {
+                            Engine.notify("Conta criada! Verifique seu e-mail para confirmação.");
+                        }
+                    } else {
+                        const { data, error } = await _supabase.auth.signInWithPassword({
+                            email: email,
+                            password: pass
+                        });
+
+                        if (error) {
+                            Engine.notify("Falha de Login: " + error.message);
+                        } else {
+                            activeSession = { email: data.user.email, role: 'Administrador' };
+                            Engine.notify("Autenticado via Supabase.");
+                            await Engine.pullDatabase();
+                            Engine.goto('#/dashboard');
+                        }
+                    }
+                });
+            },
+            async signOut() {
+                if(_supabase) await _supabase.auth.signOut();
+                activeSession = null;
+                Engine.goto('#/');
+            }
+        };
+
+        // MÓDULO DASHBOARD
+        const DashboardHome = {
+            render() {
+                const hoje = new Date().toISOString().split('T')[0];
+                const vendasHoje = storage.vendas.filter(v => v.data === hoje);
+                const valDia = vendasHoje.reduce((acc, v) => acc + v.total, 0);
+                const valMes = storage.vendas.reduce((acc, v) => acc + v.total, 0);
+                const lowStock = storage.produtos.filter(p => p.quantidade <= 3).length;
+
+                document.getElementById('dash-txt-dia').innerText = `R$ ${valDia.toFixed(2)}`;
+                document.getElementById('dash-txt-mes').innerText = `R$ ${valMes.toFixed(2)}`;
+                document.getElementById('dash-txt-alertas').innerText = `${lowStock} Unidades`;
+                
+                let totalReceitas = storage.vendas.reduce((acc, v) => acc + v.total, 0) + storage.financeiro.receitas;
+                document.getElementById('dash-txt-lucro').innerText = `R$ ${(totalReceitas - storage.financeiro.despesas).toFixed(2)}`;
+
+                const table = document.getElementById('dash-table-vendas');
+                table.innerHTML = storage.vendas.length === 0 ? '<tr><td style="color:var(--text-secondary)">Nenhuma transação efetuada no ciclo atual.</td></tr>' :
+                    storage.vendas.map(v => `
+                        <tr style="border-bottom: 1px solid var(--surface-border);">
+                            <td style="padding: 12px 0;">${v.data}</td>
+                            <td>${v.pagamento || 'PIX'}</td>
+                            <td style="color: var(--accent); font-weight: 600;">R$ ${Number(v.total).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+            }
+        };
+
+        // GESTÃO DE PRODUTOS E CADASTROS
+        const ProductManager = {
+            render() { this.drawTable(); },
+            drawTable(filter = "") {
+                const table = document.getElementById('table-products-registry');
+                const filtered = storage.produtos.filter(p => p.nome.toLowerCase().includes(filter.toLowerCase()));
+                
+                table.innerHTML = `
+                    <thead>
+                        <tr style="color: var(--text-secondary); font-size:13px;">
+                            <th style="padding-bottom:12px;">PRODUTO</th><th>CÓDIGO</th><th>CATEGORIA</th><th>ESTOQUE</th><th>PREÇO VENDA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(p => `
+                            <tr style="border-bottom: 1px solid var(--surface-border); font-size: 14px;">
+                                <td style="padding: 14px 0;">${p.nome}</td>
+                                <td>${p.codigo || 'S/C'}</td>
+                                <td>${p.categoria || 'Geral'}</td>
+                                <td style="color: ${p.quantidade <= 3 ? 'var(--danger)' : 'inherit'}">${p.quantidade} un</td>
+                                <td>R$ ${Number(p.preco_venda).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+            },
+            async createEntry() {
+                const nome = prompt("Nome do Produto:");
+                const categoria = prompt("Categoria:");
+                const preco = parseFloat(prompt("Preço de Venda (R$):")) || 0;
+                const qtd = parseInt(prompt("Quantidade Inicial em Estoque:")) || 0;
+                
+                if (nome) {
+                    const novoItem = {
+                        nome, 
+                        categoria, 
+                        codigo: 'PR-' + Math.floor(Math.random()*1000),
+                        descricao: '', 
+                        preco_custo: preco * 0.4, 
+                        preco_venda: preco,
+                        quantidade: qtd, 
+                        exibir_catalogo: true, 
+                        imagem: "https://images.unsplash.com/photo-1534126511673-b6899657816a?w=500"
+                    };
+
+                    if(_supabase) {
+                        const { data, error } = await _supabase.from('produtos').insert([novoItem]).select();
+                        if(!error && data) storage.produtos.push(data[0]);
+                    } else {
+                        storage.produtos.push(novoItem);
+                    }
+                    
+                    this.render();
+                    Engine.notify("Ficha de produto gravada no Supabase.");
+                }
+            }
+        };
+
+        // DESK DE VENDAS (PDV)
+        const SalesDesk = {
+            basket: [],
+            render() {
+                const picker = document.getElementById('sales-catalog-picker');
+                picker.innerHTML = storage.produtos.map(p => `
+                    <div class="glass-panel" style="display:flex; justify-content:space-between; align-items:center; padding: 14px;">
+                        <span><strong>${p.nome}</strong> (Disponível: ${p.quantidade})</span>
+                        <button class="btn-action btn-primary" style="padding:6px 14px; font-size:12px;" onclick="SalesDesk.addToBasket('${p.id}')">+ Adicionar</button>
+                    </div>
+                `).join('');
+                this.refreshTotals();
+            },
+            addToBasket(id) {
+                const target = storage.produtos.find(p => String(p.id) === String(id));
+                if (target && target.quantidade > 0) {
+                    this.basket.push(target);
+                    this.refreshTotals();
+                } else {
+                    Engine.notify("Disponibilidade insatisfatória no estoque.");
+                }
+            },
+            refreshTotals() {
+                const subtotal = this.basket.reduce((acc, p) => acc + Number(p.preco_venda), 0);
+                const discount = parseFloat(document.getElementById('sales-discount').value) || 0;
+                const grandTotal = Math.max(0, subtotal - discount);
+
+                document.getElementById('sales-lbl-total').innerText = `R$ ${grandTotal.toFixed(2)}`;
+                document.getElementById('sales-basket-list').innerHTML = this.basket.map(p => `
+                    <div style="font-size:14px; margin-bottom:6px; display:flex; justify-content:space-between;">
+                        <span>${p.nome}</span><span>R$ ${Number(p.preco_venda).toFixed(2)}</span>
+                    </div>
+                `).join('');
+            },
+            async checkout() {
+                if(this.basket.length === 0) return;
+                
+                const discount = parseFloat(document.getElementById('sales-discount').value) || 0;
+                const subtotal = this.basket.reduce((acc, p) => acc + Number(p.preco_venda), 0);
+                const grandTotal = Math.max(0, subtotal - discount);
+
+                // Deduz estoque local e tenta atualizar via Supabase
+                for (let item of this.basket) {
+                    const original = storage.produtos.find(p => p.id === item.id);
+                    if(original) {
+                        original.quantidade--;
+                        if(_supabase) {
+                            await _supabase.from('produtos').update({ quantidade: original.quantidade }).eq('id', original.id);
+                        }
+                    }
+                }
+
+                const novaVenda = {
+                    total: grandTotal,
+                    pagamento: document.getElementById('sales-payment-method').value,
+                    data: new Date().toISOString().split('T')[0]
+                };
+
+                if(_supabase) {
+                    const { data, error } = await _supabase.from('vendas').insert([novaVenda]).select();
+                    if(!error && data) storage.vendas.push(data[0]);
+                } else {
+                    storage.vendas.push(novaVenda);
+                }
+
+                this.basket = [];
+                document.getElementById('sales-discount').value = "0";
+                this.render();
+                Engine.notify("Venda salva com sucesso no Supabase.");
+                Engine.goto('#/dashboard');
+            }
+        };
+
+        // MÓDULO FINANCEIRO
+        const FinancialLedger = {
+            post(type) {
+                const field = type ===
 

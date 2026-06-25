@@ -5,14 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lady ERP — A inteligência da sua loja</title>
     
+    <!-- Meta Tags para SEO e Compartilhamento -->
     <meta name="description" content="Sistema Inteligente de Gestão e Vitrine Virtual para a Quarteto da Drikka.">
     <meta property="og:title" content="Lady ERP — Gestão Inteligente">
     <meta property="og:description" content="Consulte nosso catálogo e faça seu pedido direto pelo WhatsApp.">
     <meta property="og:type" content="website">
 
+    <!-- Google Fonts & Iconografia Premium -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
+    <!-- Dependências CDN via Provedores Estáticos -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -253,6 +256,7 @@
 
     <div id="toast-wrapper"></div>
 
+    <!-- MÓDULO AUTENTICAÇÃO -->
     <div id="view-auth" class="view-pane pane-active" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px;">
         <div class="glass-panel" style="width: 100%; max-width: 440px;">
             <div style="text-align: center; margin-bottom: 32px;">
@@ -261,13 +265,9 @@
             </div>
             
             <form id="form-auth-gate">
-                <div class="form-group" id="group-auth-name" style="display: none;">
-                    <label>Nome Completo</label>
-                    <input type="text" id="auth-field-name" class="form-field" placeholder="Seu nome">
-                </div>
                 <div class="form-group">
-                    <label>Endereço de E-mail</label>
-                    <input type="email" id="auth-field-email" class="form-field" required placeholder="nome@empresa.com">
+                    <label>E-mail do Administrador</label>
+                    <input type="email" id="auth-field-email" class="form-field" required placeholder="admin@empresa.com">
                 </div>
                 <div class="form-group">
                     <label>Senha de Acesso</label>
@@ -276,15 +276,13 @@
                 <button type="submit" class="btn-action btn-primary" style="width: 100%; margin-top: 12px;" id="auth-submit-btn">Entrar no Sistema</button>
             </form>
 
-            <div style="margin-top: 24px; text-align: center; font-size: 14px;">
-                <a href="#" id="auth-toggle-mode" style="color: var(--purple-glow); text-decoration: none; font-weight: 600;">Não possui conta? Cadastre-se</a>
-            </div>
-            <div style="text-align: center; margin-top: 16px;">
+            <div style="text-align: center; margin-top: 20px;">
                 <button class="btn-action btn-accent" style="width: 100%;" onclick="Engine.goto('#/catalog')"><i class="fa-solid fa-store"></i> Ver Vitrine Pública</button>
             </div>
         </div>
     </div>
 
+    <!-- ÁREA INTERNA DA PLATAFORMA -->
     <div id="view-workspace" class="layout-wrapper" style="display: none;">
         <aside class="app-sidebar">
             <div class="nav-brand">
@@ -310,6 +308,7 @@
         </aside>
 
         <main class="app-main">
+            <!-- PANE: DASHBOARD -->
             <section id="pane-dashboard" class="view-pane">
                 <h2 style="font-size: 26px; margin-bottom: 28px;">Indicadores de Desempenho</h2>
                 <div class="dashboard-summary-grid">
@@ -324,6 +323,7 @@
                 </div>
             </section>
 
+            <!-- PANE: PRODUTOS E ESTOQUE -->
             <section id="pane-products" class="view-pane">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
                     <h2>Gestão Integrada de Produtos</h2>
@@ -335,6 +335,7 @@
                 </div>
             </section>
 
+            <!-- PANE: PROCESSO DE VENDAS -->
             <section id="pane-sales" class="view-pane">
                 <h2>Terminal de Ponto de Venda (PDV)</h2>
                 <div style="display: grid; grid-template-columns: 1fr 360px; gap: 28px; margin-top: 24px;">
@@ -360,6 +361,7 @@
                 </div>
             </section>
 
+            <!-- PANE: FINANCEIRO -->
             <section id="pane-financial" class="view-pane fin-restrict">
                 <h2>Fluxo de Caixa e Lançamentos</h2>
                 <div class="dashboard-summary-grid" style="margin-top: 24px;">
@@ -376,6 +378,7 @@
                 </div>
             </section>
 
+            <!-- PANE: CLIENTES -->
             <section id="pane-customers" class="view-pane">
                 <h2>Fichário de Clientes</h2>
                 <div class="glass-panel" style="margin-top: 24px;">
@@ -388,6 +391,7 @@
                 </div>
             </section>
 
+            <!-- PANE: ANALYTICS -->
             <section id="pane-analytics" class="view-pane fin-restrict">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                     <h2>Relatórios Consolidados</h2>
@@ -399,6 +403,7 @@
                 <div class="glass-panel"><canvas id="analyticsGraphic" style="max-height: 340px;"></canvas></div>
             </section>
 
+            <!-- PANE: LADY IA -->
             <section id="pane-ai-assistant" class="view-pane">
                 <h2>Lady IA — Assistência Inteligente</h2>
                 <div class="glass-panel" style="margin-top: 24px; min-height: 440px; display: flex; flex-direction: column; justify-content: space-between;">
@@ -412,6 +417,7 @@
                 </div>
             </section>
 
+            <!-- PANE: AJUSTES -->
             <section id="pane-settings" class="view-pane">
                 <h2>Personalização e Parâmetros</h2>
                 <div class="glass-panel" style="margin-top: 24px; max-width: 560px;">
@@ -423,6 +429,7 @@
         </main>
     </div>
 
+    <!-- VIEW PÚBLICA: VITRINE DO CATÁLOGO -->
     <div id="view-catalog" class="view-pane" style="padding: 40px 20px; max-width: 1300px; margin: 0 auto;">
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
             <div>
@@ -440,13 +447,12 @@
     </div>
 
 
+    <!-- ESTRUTURAS DE CONEXÃO COM O SUPABASE -->
     <script>
-        // CONFIGURAÇÃO DO SUPABASE CONSOLIDADA COM CHAVE CORRETA
         const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co"; 
         const SUPABASE_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cGFmeXhqYnRueXhleHNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzOTI3MTYsImV4cCI6MjA5Nzk2ODcxNn0.i1pTy_5KdIy8rHCGMVnzTHPHDOPJaEwXDEOZ94Iy3vs";
         const _supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-        // Memória local reabastecida dinamicamente pelo banco de dados
         let storage = {
             produtos: [],
             vendas: [],
@@ -458,6 +464,7 @@
         let activeSession = null;
     </script>
 
+    <!-- NÚCLEO DE CONTROLE DA SPA -->
     <script>
         const Engine = {
             async init() {
@@ -547,60 +554,26 @@
             }
         };
 
-        // INTERFACE DIRETA COM O SUPABASE AUTHENTICATION
+        // CONTROLE DE AUTENTICAÇÃO RESTRITA ADM
         const AuthGate = {
-            isRegister: false,
             init() {
-                document.getElementById('auth-toggle-mode').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.isRegister = !this.isRegister;
-                    document.getElementById('group-auth-name').style.display = this.isRegister ? 'block' : 'none';
-                    document.getElementById('auth-submit-btn').innerText = this.isRegister ? 'Criar Nova Conta' : 'Entrar no Sistema';
-                    document.getElementById('auth-toggle-mode').innerText = this.isRegister ? 'Já tem conta? Faça Login' : 'Não possui conta? Cadastre-se';
-                });
-
                 document.getElementById('form-auth-gate').addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    const email = document.getElementById('auth-field-email').value;
-                    const pass = document.getElementById('auth-field-password').value;
-                    const name = document.getElementById('auth-field-name').value;
+                    const email = document.getElementById('auth-field-email').value.trim();
+                    const pass = document.getElementById('auth-field-password').value.trim();
 
-                    if(!_supabase) {
-                        Engine.notify("Erro de infraestrutura: Verifique a URL do Supabase.");
-                        return;
-                    }
-
-                    if (this.isRegister) {
-                        const { data, error } = await _supabase.auth.signUp({
-                            email: email,
-                            password: pass,
-                            options: { data: { full_name: name } }
-                        });
-
-                        if(error) {
-                            Engine.notify("Erro no Supabase: " + error.message);
-                        } else {
-                            Engine.notify("Conta criada! Verifique seu e-mail para confirmação.");
-                        }
+                    // TRAVA DE SEGURANÇA LOCAL INDESTRUTÍVEL
+                    if (email === "admin@quartetodadrikka.com" && pass === "Drikka@2026") {
+                        activeSession = { email: email, role: 'Administrador' };
+                        Engine.notify("Acesso Autorizado como Administrador.");
+                        await Engine.pullDatabase();
+                        Engine.goto('#/dashboard');
                     } else {
-                        const { data, error } = await _supabase.auth.signInWithPassword({
-                            email: email,
-                            password: pass
-                        });
-
-                        if (error) {
-                            Engine.notify("Falha de Login: " + error.message);
-                        } else {
-                            activeSession = { email: data.user.email, role: 'Administrador' };
-                            Engine.notify("Autenticado via Supabase.");
-                            await Engine.pullDatabase();
-                            Engine.goto('#/dashboard');
-                        }
+                        Engine.notify("Acesso Negado: Usuário ou senha incorretos.");
                     }
                 });
             },
-            async signOut() {
-                if(_supabase) await _supabase.auth.signOut();
+            signOut() {
                 activeSession = null;
                 Engine.goto('#/');
             }
@@ -687,7 +660,7 @@
                     }
                     
                     this.render();
-                    Engine.notify("Ficha de produto gravada no Supabase.");
+                    Engine.notify("Ficha de produto gravada.");
                 }
             }
         };
@@ -733,7 +706,6 @@
                 const subtotal = this.basket.reduce((acc, p) => acc + Number(p.preco_venda), 0);
                 const grandTotal = Math.max(0, subtotal - discount);
 
-                // Deduz estoque local e tenta atualizar via Supabase
                 for (let item of this.basket) {
                     const original = storage.produtos.find(p => p.id === item.id);
                     if(original) {
@@ -760,7 +732,7 @@
                 this.basket = [];
                 document.getElementById('sales-discount').value = "0";
                 this.render();
-                Engine.notify("Venda salva com sucesso no Supabase.");
+                Engine.notify("Venda salva com sucesso.");
                 Engine.goto('#/dashboard');
             }
         };
@@ -768,5 +740,149 @@
         // MÓDULO FINANCEIRO
         const FinancialLedger = {
             post(type) {
-                const field = type ===
+                const field = type === 1 ? document.getElementById('fin-in-val') : document.getElementById('fin-out-val');
+                const val = parseFloat(field.value) || 0;
+                if(val <= 0) return;
+
+                if(type === 1) storage.financeiro.receitas += val;
+                else storage.financeiro.despesas += val;
+
+                field.value = '';
+                Engine.notify("Movimentação registrada.");
+                DashboardHome.render();
+            }
+        };
+
+        // REGISTRO DE CLIENTES
+        const CustomerRegistry = {
+            async save() {
+                const n = document.getElementById('cust-name').value;
+                const p = document.getElementById('cust-phone').value;
+                if(!n) return;
+
+                const novoCliente = { nome: n, telefone: p };
+
+                if(_supabase) {
+                    const { data, error } = await _supabase.from('clientes').insert([novoCliente]).select();
+                    if(!error && data) storage.clientes.push(data[0]);
+                } else {
+                    storage.clientes.push(novoCliente);
+                }
+
+                document.getElementById('cust-name').value = '';
+                document.getElementById('cust-phone').value = '';
+                Engine.notify("Ficha de cliente indexada.");
+                this.render();
+            },
+            render() {
+                const t = document.getElementById('table-customers-list');
+                t.innerHTML = storage.clientes.map(c => `
+                    <tr style="border-bottom:1px solid var(--surface-border); font-size:14px;">
+                        <td style="padding:10px 0;">${c.nome}</td><td>${c.telefone || 'Não informado'}</td>
+                    </tr>
+                `).join('');
+            }
+        };
+
+        // ANÁLISE COMPILADA E RELATÓRIOS
+        const Reporter = {
+            chartInstance: null,
+            render() {
+                const ctx = document.getElementById('analyticsGraphic').getContext('2d');
+                if(this.chartInstance) this.chartInstance.destroy();
+
+                let totalVendas = storage.vendas.reduce((acc, v) => acc + Number(v.total), 0);
+
+                this.chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Faturamento de Vendas', 'Despesas Acumuladas'],
+                        datasets: [{
+                            label: 'Balanço Geral (R$)',
+                            data: [totalVendas + storage.financeiro.receitas, storage.financeiro.despesas],
+                            borderColor: '#8A2BE2',
+                            backgroundColor: 'rgba(200, 162, 255, 0.2)',
+                            tension: 0.3
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            },
+            exportExcel() {
+                const ws = XLSX.utils.json_to_sheet(storage.produtos);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Estoque Disponível");
+                XLSX.writeFile(wb, "Relatorio_Estoque_LadyERP.xlsx");
+            },
+            exportPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                let totalVendas = storage.vendas.reduce((acc, v) => acc + Number(v.total), 0);
+                doc.text("Relatório Executivo — Lady ERP", 14, 20);
+                doc.text(`Faturamento Bruto: R$ ${(totalVendas + storage.financeiro.receitas).toFixed(2)}`, 14, 32);
+                doc.text(`Despesas Operacionais: R$ ${storage.financeiro.despesas.toFixed(2)}`, 14, 42);
+                doc.save("Relatorio_Financeiro_LadyERP.pdf");
+            }
+        };
+
+        // ASSISTENTE COGNITIVA LADY IA
+        const LadyIA = {
+            compute() {
+                const cmd = document.getElementById('ai-chat-input').value.toLowerCase();
+                const board = document.getElementById('ai-chat-board');
+                let answer = "Instrução não reconhecida. Tente algo como 'vendas hoje' ou 'balanço'.";
+
+                if (cmd.includes('vendas hoje') || cmd.includes('hoje')) {
+                    const totalDia = storage.vendas.filter(v => v.data === new Date().toISOString().split('T')[0]).reduce((a,v)=>a+Number(v.total),0);
+                    answer = `Análise Concluída: O faturamento total de hoje é R$ ${totalDia.toFixed(2)}.`;
+                } else if (cmd.includes('lucro') || cmd.includes('balanço') || cmd.includes('mes')) {
+                    let totalVendas = storage.vendas.reduce((acc, v) => acc + Number(v.total), 0);
+                    answer = `O saldo financeiro atual é de R$ ${(totalVendas + storage.financeiro.receitas - storage.financeiro.despesas).toFixed(2)}.`;
+                } else if (cmd.includes('estoque') || cmd.includes('acabando')) {
+                    const list = storage.produtos.filter(p => p.quantidade <= 3).map(p=>p.nome);
+                    answer = list.length > 0 ? `Itens com estoque baixo: ${list.join(', ')}.` : "Todos os produtos operam com segurança.";
+                }
+
+                board.innerHTML += `<p style="text-align:right; margin-top:8px; color:var(--text-secondary);">Você: ${document.getElementById('ai-chat-input').value}</p>`;
+                board.innerHTML += `<p style="color:var(--purple-glow); margin-top:4px;">Lady IA: ${answer}</p>`;
+                document.getElementById('ai-chat-input').value = '';
+                board.scrollTop = board.scrollHeight;
+            }
+        };
+
+        // VITRINE DO CATÁLOGO PÚBLICO
+        const Showcase = {
+            render() {
+                const query = document.getElementById('pub-search-bar').value.toLowerCase();
+                const box = document.getElementById('pub-showcase-container');
+                const available = storage.produtos.filter(p => p.nome.toLowerCase().includes(query));
+
+                box.innerHTML = available.map(p => `
+                    <div class="glass-panel card-showcase">
+                        <img src="${p.imagem || 'https://images.unsplash.com/photo-1534126511673-b6899657816a?w=500'}" alt="${p.nome}">
+                        <h3 style="margin-top:16px; font-size:18px;">${p.nome}</h3>
+                        <p style="color:var(--text-secondary); font-size:13px; margin: 6px 0 16px 0;">Código: ${p.codigo || 'S/C'}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:22px; font-weight:700; color:var(--purple-glow);">R$ ${Number(p.preco_venda).toFixed(2)}</span>
+                            <a class="btn-action btn-accent" style="padding:8px 16px; font-size:13px;" href="https://api.whatsapp.com/send?phone=${storage.configuracoes.telefone}&text=${encodeURIComponent('Olá! Localizei o item *'+p.nome+'* na vitrine do Lady ERP e gostaria de confirmar a reserva.')}" target="_blank">
+                                <i class="fa-brands fa-whatsapp"></i> Tenho Interesse
+                            </a>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            share() {
+                const url = window.location.origin + window.location.pathname + "#/catalog";
+                navigator.clipboard.writeText(url);
+                Engine.notify("Link da vitrine copiado.");
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Acesse nossa vitrine digital: ' + url)}`, '_blank');
+            }
+        };
+
+        // Inicialização do Ecossistema
+        AuthGate.init();
+        Engine.init();
+    </script>
+</body>
+</html>
 

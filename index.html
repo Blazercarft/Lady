@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LADY 💜 - Quarteto da Drikka</title>
-    <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -157,13 +155,11 @@
 <body>
 
     <div class="app-container">
-        <!-- Header -->
         <header>
             <h1>LADY <span>💜</span></h1>
             <p>A inteligência da sua loja</p>
         </header>
 
-        <!-- 0. TELA DE AUTENTICAÇÃO -->
         <section id="screen-auth" class="app-screen active">
             <h2 id="auth-title"><i class="fa-solid fa-lock"></i> Entrar no Sistema</h2>
             <div class="form-group">
@@ -179,7 +175,6 @@
             <button class="btn-icon mt-3" id="btn-auth-reset" onclick="handleResetPassword()" style="font-size:12px; width:100%; color:var(--gray-text)">Esqueceu sua senha?</button>
         </section>
 
-        <!-- 1. DASHBOARD -->
         <section id="screen-dashboard" class="app-screen">
             <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
             <div class="dash-grid">
@@ -212,7 +207,6 @@
 
             <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
 
-            <!-- Lady IA -->
             <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
             <div class="chat-suggestions">
                 <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
@@ -229,7 +223,6 @@
             </div>
         </section>
 
-        <!-- 2. ESTOQUE -->
         <section id="screen-estoque" class="app-screen">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
@@ -239,7 +232,6 @@
             <div class="list-container" id="lista-produtos"></div>
         </section>
 
-        <!-- 3. VENDAS -->
         <section id="screen-vendas" class="app-screen">
             <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
             <div class="form-group">
@@ -269,7 +261,6 @@
             <div class="list-container" id="lista-vendas-recentes"></div>
         </section>
 
-        <!-- 4. RELATÓRIOS & FINANCEIRO -->
         <section id="screen-relatorios" class="app-screen">
             <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
             <div class="dash-grid">
@@ -302,7 +293,6 @@
             </div>
         </section>
 
-        <!-- 5. CONFIGURAÇÕES / CLIENTES -->
         <section id="screen-configuracoes" class="app-screen">
             <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
             <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
@@ -317,7 +307,6 @@
             <button class="btn-secondary mt-3" onclick="handleLogout()" style="background:var(--danger); color:white;"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
         </section>
 
-        <!-- Menu Inferior Móvel -->
         <nav class="nav-bottom" id="main-nav">
             <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dash</button>
             <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
@@ -327,7 +316,6 @@
         </nav>
     </div>
 
-    <!-- MODAL DE PRODUTO -->
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -350,14 +338,14 @@
     </div>
 
     <script>
-        // CONFIGURAÇÕES DO SUPABASE — SUBSTITUA COM OS SEUS DADOS
-        const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
-        const SUPABASE_KEY = "SUA_ANON_KEY";
+        // CONFIGURAÇÕES DO SUPABASE — JÁ ATUALIZADAS
+        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co";
+        const SUPABASE_KEY = "COLE_AQUI_A_SUA_CHAVE_ANON_PUBLIC";
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let DB = { produtos: [], vendas: [], clientes: [] };
-        let authMode = 'login'; // login, cadastro, recup
+        let authMode = 'login'; 
 
         // Controle de Autenticação
         async function checkUser() {
@@ -455,7 +443,6 @@
 
             calcularMetricas();
             
-            // Renderiza apenas na tela atual ativa para evitar misturas
             if(document.getElementById('screen-estoque').classList.contains('active')) renderEstoque();
             if(document.getElementById('screen-vendas').classList.contains('active')) preencherSelectsVenda();
             if(document.getElementById('screen-configuracoes').classList.contains('active')) renderClientes();
@@ -729,7 +716,7 @@
             let fatTotal = DB.vendas.reduce((acc, v) => acc + v.total, 0);
             let lucTotal = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
 
-            if (p.includes('faturamento') || p.includes('vendas')) {
+            if (p.includes('faturamento') | 0| p.includes('vendas')) {
                 resposta = `O faturamento acumulado no sistema é de **R$ ${fatTotal.toFixed(2)}**.`;
             } else if (p.includes('estoque') || p.includes('produtos')) {
                 resposta = `Temos **${DB.produtos.reduce((acc, prod) => acc + prod.qtd, 0)} itens** físicos em estoque.`;
@@ -749,4 +736,3 @@
     </script>
 </body>
 </html>
-

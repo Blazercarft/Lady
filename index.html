@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LADY 💜 - Quarteto da Drikka</title>
+    <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2=family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --purple-main: #8A2BE2;
@@ -34,6 +38,692 @@
         }
 
         body {
+            background-color: var(--purple-bg);
+            color: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 75px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.05);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--purple-main), #5B11A6);
+            color: var(--white);
+            padding: 25px 20px;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: var(--shadow-premium);
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        header h1 span { color: var(--gold); }
+        header p { font-size: 11px; opacity: 0.9; font-weight: 300; margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .app-screen { display: none; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
+        .app-screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { font-size: 18px; color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .dash-card { background: var(--white); border: 1px solid rgba(200, 162, 255, 0.3); border-radius: var(--radius-main); padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .dash-card.full-width { grid-column: span 2; background: linear-gradient(135deg, #FAF7FF, var(--white)); border-left: 5px solid var(--purple-main); }
+        .dash-card i { position: absolute; right: 15px; top: 15px; color: var(--purple-light); font-size: 18px; }
+        .dash-card p { font-size: 11px; color: var(--gray-text); font-weight: 500; }
+        .dash-card h3 { font-size: 18px; font-weight: 700; color: var(--dark); margin-top: 5px; }
+
+        .text-success { color: var(--success) !important; }
+        .text-danger { color: var(--danger) !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-main), #7315CA);
+            color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main);
+            font-weight: 600; font-size: 14px; cursor: pointer; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { background: #E2E8F0; color: var(--dark); border: none; padding: 10px; border-radius: var(--radius-main); font-weight: 500; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px;}
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--dark); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; background: var(--gray-light); }
+        .form-control:focus { border-color: var(--purple-main); background: var(--white); }
+
+        .list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .item-card { display: flex; align-items: center; background: var(--white); border: 1px solid #F0E6FF; padding: 12px; border-radius: var(--radius-main); gap: 12px; }
+        .item-img-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; color: var(--purple-main); font-size: 20px; }
+        .item-info { flex: 1; }
+        .item-info h4 { font-size: 14px; font-weight: 600; }
+        .item-info p { font-size: 11px; color: var(--gray-text); }
+        .item-actions { display: flex; gap: 8px; }
+        .btn-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 5px; }
+        .btn-icon.edit { color: var(--purple-main); }
+        .btn-icon.delete { color: var(--danger); }
+
+        .chat-container { background: var(--gray-light); border-radius: var(--radius-main); height: 250px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #E2E8F0; }
+        .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+        .chat-bubble.lady { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: white; align-self: flex-start; border-top-left-radius: 4px; }
+        .chat-bubble.user { background: var(--purple-light); color: var(--dark); align-self: flex-end; border-top-right-radius: 4px; }
+
+        .chat-suggestions { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
+        .suggestion-tag { background: var(--white); border: 1px solid var(--purple-light); padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--purple-main); font-weight: 500; }
+
+        nav.nav-bottom {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
+            background: var(--white); display: flex; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999;
+            display: none;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; }
+        .nav-item i { font-size: 20px; margin-bottom: 3px; }
+        .nav-item.active { color: var(--purple-main); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--white); border-radius: var(--radius-main); width: 100%; max-width: 400px; padding: 20px; max-height: 85vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+        .mt-3 { margin-top: 15px; }
+        .mb-3 { margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <h1>LADY <span>💜</span></h1>
+            <p>A inteligência da sua loja</p>
+        </header>
+
+        <!-- 0. TELA DE AUTENTICAÇÃO -->
+        <section id="screen-auth" class="app-screen active">
+            <h2 id="auth-title"><i class="fa-solid fa-lock"></i> Entrar no Sistema</h2>
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="auth-email" class="form-control" placeholder="seuemail@provedor.com">
+            </div>
+            <div class="form-group" id="group-password">
+                <label>Senha</label>
+                <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn-primary mt-3" id="btn-auth-main" onclick="handleAuth()">Entrar</button>
+            <button class="btn-secondary" id="btn-auth-switch" onclick="switchAuthMode()">Não tem conta? Cadastre-se</button>
+            <button class="btn-icon mt-3" id="btn-auth-reset" onclick="handleResetPassword()" style="font-size:12px; width:100%; color:var(--gray-text)">Esqueceu sua senha?</button>
+        </section>
+
+        <!-- 1. DASHBOARD -->
+        <section id="screen-dashboard" class="app-screen">
+            <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
+            <div class="dash-grid">
+                <div class="dash-card full-width">
+                    <i class="fa-solid fa-money-bill-trend-up text-success"></i>
+                    <p>Faturamento do Mês</p>
+                    <h3 id="dash-faturamento-mes">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <p>Faturamento Dia</p>
+                    <h3 id="dash-faturamento-dia">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <i class="fa-solid fa-hand-holding-dollar text-success"></i>
+                    <p>Lucro do Mês</p>
+                    <h3 id="dash-lucro-mes">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <i class="fa-solid fa-box"></i>
+                    <p>Total Produtos</p>
+                    <h3 id="dash-total-produtos">0</h3>
+                </div>
+                <div class="dash-card">
+                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                    <p>Estoque Baixo</p>
+                    <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+
+            <!-- Lady IA -->
+            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
+            <div class="chat-suggestions">
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Quais os produtos mais vendidos?')">Mais vendidos</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
+            </div>
+            <div class="chat-container" id="chat-box">
+                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar hoje? ✨</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
+                <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </section>
+
+        <!-- 2. ESTOQUE -->
+        <section id="screen-estoque" class="app-screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
+                <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Novo</button>
+            </div>
+            <input type="text" id="search-produto" class="form-control mb-3" placeholder="🔍 Buscar produto..." oninput="renderEstoque()">
+            <div class="list-container" id="lista-produtos"></div>
+        </section>
+
+        <!-- 3. VENDAS -->
+        <section id="screen-vendas" class="app-screen">
+            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
+            <div class="form-group">
+                <label>Selecionar Produto</label>
+                <select id="venda-produto-select" class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label>Quantidade</label>
+                <input type="number" id="venda-qtd" class="form-control" value="1" min="1">
+            </div>
+            <div class="form-group">
+                <label>Forma de Pagamento</label>
+                <select id="venda-pagamento" class="form-control">
+                    <option value="Pix">Pix</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Vincular a um Cliente (Opcional)</label>
+                <select id="venda-cliente-select" class="form-control"></select>
+            </div>
+            <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
+
+            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas</h3>
+            <div class="list-container" id="lista-vendas-recentes"></div>
+        </section>
+
+        <!-- 4. RELATÓRIOS & FINANCEIRO -->
+        <section id="screen-relatorios" class="app-screen">
+            <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
+            <div class="dash-grid">
+                <div class="dash-card">
+                    <p>Receita Diária</p>
+                    <h3 id="fin-receita-dia" class="text-success">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Receita Mensal</p>
+                    <h3 id="fin-receita-mes" class="text-success">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Custos Totais</p>
+                    <h3 id="fin-despesas" class="text-danger">R$ 0,00</h3>
+                </div>
+                <div class="dash-card">
+                    <p>Lucro Líquido</p>
+                    <h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Desempenho de Produtos</h2>
+            <div class="dash-card full-width mb-3">
+                <p>⭐ Produto Mais Vendido</p>
+                <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
+            <div class="dash-card full-width mb-3">
+                <p>⚠️ Menor Saída</p>
+                <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
+        </section>
+
+        <!-- 5. CONFIGURAÇÕES / CLIENTES -->
+        <section id="screen-configuracoes" class="app-screen">
+            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
+            <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
+                <div class="form-group"><input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo"></div>
+                <div class="form-group"><input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp"></div>
+                <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
+            </div>
+            <h3>Lista de Clientes</h3>
+            <div class="list-container" id="lista-clientes"></div>
+            
+            <button class="btn-secondary mt-3" onclick="handleLogout()" style="background:var(--danger); color:white;"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
+        </section>
+
+        <!-- Menu Inferior Móvel -->
+        <nav class="nav-bottom" id="main-nav">
+            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dash</button>
+            <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
+            <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
+            <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
+            <button class="nav-item" onclick="switchScreen('configuracoes', this)"><i class="fa-solid fa-gear"></i>Config</button>
+        </nav>
+    </div>
+
+    <!-- MODAL DE PRODUTO -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" style="color: var(--purple-main);">Cadastrar Produto</h3>
+                <button class="btn-icon" onclick="closeProductModal()" style="font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="prod-id">
+            <div class="form-group">
+                <label>Imagem (Foto)</label>
+                <input type="file" id="prod-img" class="form-control" accept="image/*">
+            </div>
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="prod-nome" class="form-control"></div>
+            <div class="form-group"><label>Categoria</label><input type="text" id="prod-categoria" class="form-control"></div>
+            <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="prod-qtd" class="form-control" min="0"></div>
+            <div class="form-group"><label>Preço de Custo (R$)</label><input type="number" id="prod-custo" class="form-control" step="0.01"></div>
+            <div class="form-group"><label>Preço de Venda (R$)</label><input type="number" id="prod-venda" class="form-control" step="0.01"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="prod-desc" class="form-control" rows="2"></textarea></div>
+            <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÕES DO SUPABASE — SUBSTITUA COM OS SEUS DADOS
+        const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
+        const SUPABASE_KEY = "SUA_ANON_KEY";
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let DB = { produtos: [], vendas: [], clientes: [] };
+        let authMode = 'login'; // login, cadastro, recup
+
+        // Controle de Autenticação
+        async function checkUser() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                showApp();
+            } else {
+                showAuth();
+            }
+        }
+
+        function showAuth() {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-auth').classList.add('active');
+            document.getElementById('main-nav').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('screen-auth').classList.remove('active');
+            document.getElementById('screen-dashboard').classList.add('active');
+            document.getElementById('main-nav').style.display = 'flex';
+            initRealtimeSync();
+            fetchInitialData();
+        }
+
+        function switchAuthMode() {
+            const title = document.getElementById('auth-title');
+            const btnMain = document.getElementById('btn-auth-main');
+            const btnSwitch = document.getElementById('btn-auth-switch');
+            const passGroup = document.getElementById('group-password');
+
+            if (authMode === 'login') {
+                authMode = 'cadastro';
+                title.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar Nova Conta';
+                btnMain.innerText = 'Cadastrar';
+                btnSwitch.innerText = 'Já tem conta? Faça Login';
+                passGroup.style.display = 'block';
+            } else {
+                authMode = 'login';
+                title.innerHTML = '<i class="fa-solid fa-lock"></i> Entrar no Sistema';
+                btnMain.innerText = 'Entrar';
+                btnSwitch.innerText = 'Não tem conta? Cadastre-se';
+                passGroup.style.display = 'block';
+            }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            if(!email || (authMode !== 'recup' && !password)) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            if (authMode === 'login') {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) alert('Erro ao entrar: ' + error.message);
+                else showApp();
+            } else if (authMode === 'cadastro') {
+                const { error } = await supabase.auth.signUp({ email, password });
+                if (error) alert('Erro ao cadastrar: ' + error.message);
+                else alert('Cadastro realizado! Se configurado, confirme seu e-mail.');
+            } else if (authMode === 'recup') {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.href,
+                });
+                if (error) alert('Erro: ' + error.message);
+                else alert('E-mail de recuperação enviado!');
+            }
+        }
+
+        async function handleResetPassword() {
+            authMode = 'recup';
+            document.getElementById('auth-title').innerHTML = '<i class="fa-solid fa-key"></i> Recuperar Senha';
+            document.getElementById('btn-auth-main').innerText = 'Enviar E-mail de Recuperação';
+            document.getElementById('group-password').style.display = 'none';
+            document.getElementById('btn-auth-switch').innerText = 'Voltar para o Login';
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            location.reload();
+        }
+
+        // Busca de Dados Inicial
+        async function fetchInitialData() {
+            const { data: p } = await supabase.from('produtos').select('*').order('nome');
+            const { data: v } = await supabase.from('vendas').select('*').order('created_at', { ascending: false });
+            const { data: c } = await supabase.from('clientes').select('*').order('nome');
+            
+            DB.produtos = p || [];
+            DB.vendas = v || [];
+            DB.clientes = c || [];
+
+            calcularMetricas();
+            if(document.getElementById('screen-estoque').classList.contains('active')) renderEstoque();
+            if(document.getElementById('screen-vendas').classList.contains('active')) preencherSelectsVenda();
+        }
+
+        // Sincronização em Tempo Real (Múltiplos Usuários)
+        function initRealtimeSync() {
+            supabase.channel('custom-all-channel')
+            .on('postgres_changes', { event: '*', filter: undefined, schema: 'public', table: 'produtos' }, () => { fetchInitialData(); })
+            .on('postgres_changes', { event: '*', filter: undefined, schema: 'public', table: 'vendas' }, () => { fetchInitialData(); })
+            .on('postgres_changes', { event: '*', filter: undefined, schema: 'public', table: 'clientes' }, () => { fetchInitialData(); })
+            .subscribe();
+        }
+
+        function switchScreen(screenId, element) {
+            document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById(`screen-${screenId}`).classList.add('active');
+            element.classList.add('active');
+
+            if(screenId === 'estoque') renderEstoque();
+            if(screenId === 'vendas') preencherSelectsVenda();
+            if(screenId === 'configuracoes') renderClientes();
+            if(screenId === 'relatorios') calcularMetricas();
+        }
+
+        async function uploadImagem(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('produtos-imagens')
+                .upload(filePath, file);
+
+            if (uploadError) return null;
+
+            const { data } = supabase.storage.from('produtos-imagens').getPublicUrl(filePath);
+            return data.publicUrl;
+        }
+
+        function openProductModal(id = null) {
+            document.getElementById('product-modal').style.display = 'flex';
+            if(id) {
+                document.getElementById('modal-title').innerText = "Editar Produto";
+                const p = DB.produtos.find(prod => prod.id === id);
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-nome').value = p.nome;
+                document.getElementById('prod-categoria').value = p.categoria;
+                document.getElementById('prod-qtd').value = p.qtd;
+                document.getElementById('prod-custo').value = p.custo;
+                document.getElementById('prod-venda').value = p.venda;
+                document.getElementById('prod-desc').value = p.descricao;
+            } else {
+                document.getElementById('modal-title').innerText = "Cadastrar Produto";
+                document.getElementById('prod-id').value = '';
+                document.getElementById('prod-nome').value = '';
+                document.getElementById('prod-categoria').value = '';
+                document.getElementById('prod-qtd').value = '';
+                document.getElementById('prod-custo').value = '';
+                document.getElementById('prod-venda').value = '';
+                document.getElementById('prod-desc').value = '';
+                document.getElementById('prod-img').value = '';
+            }
+        }
+
+        function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
+
+        async function salvarProduto() {
+            const id = document.getElementById('prod-id').value;
+            const nome = document.getElementById('prod-nome').value;
+            const categoria = document.getElementById('prod-categoria').value;
+            const qtd = parseInt(document.getElementById('prod-qtd').value) || 0;
+            const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
+            const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
+            const descricao = document.getElementById('prod-desc').value;
+            const imgFile = document.getElementById('prod-img').files[0];
+
+            if(!nome || custo <= 0 || venda <= 0) { alert('Preencha os campos obrigatórios.'); return; }
+
+            let imagemUrl = null;
+            if (imgFile) {
+                imagemUrl = await uploadImagem(imgFile);
+            } else if (id) {
+                const current = DB.produtos.find(p => p.id == id);
+                imagemUrl = current ? current.imagem : null;
+            }
+
+            const payload = { nome, categoria, qtd, custo, venda, descricao, imagem: imagemUrl };
+
+            if(id) {
+                await supabase.from('produtos').update(payload).eq('id', id);
+            } else {
+                await supabase.from('produtos').insert([payload]);
+            }
+            closeProductModal();
+        }
+
+        async function excluirProduto(id) {
+            if(confirm("Deseja excluir este produto?")) { 
+                await supabase.from('produtos').delete().eq('id', id);
+            }
+        }
+
+        function renderEstoque() {
+            const lista = document.getElementById('lista-produtos');
+            const busca = document.getElementById('search-produto').value.toLowerCase();
+            lista.innerHTML = '';
+            const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
+
+            filtrados.forEach(p => {
+                const imgTag = p.imagem ? `<img src="${p.imagem}" class="item-img-thumb">` : `<div class="item-img-thumb"><i class="fa-solid fa-image"></i></div>`;
+                lista.innerHTML += `
+                    <div class="item-card">
+                        ${imgTag}
+                        <div class="item-info">
+                            <h4>${p.nome}</h4>
+                            <p>Preço: <b>R$ ${p.venda.toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon delete" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function cadastrarCliente() {
+            const nome = document.getElementById('cliente-nome').value;
+            const fone = document.getElementById('cliente-fone').value;
+            if(!nome || !fone) return;
+
+            await supabase.from('clientes').insert([{ nome, fone, comprasCount: 0 }]);
+            document.getElementById('cliente-nome').value = '';
+            document.getElementById('cliente-fone').value = '';
+        }
+
+        function renderClientes() {
+            const lista = document.getElementById('lista-clientes');
+            lista.innerHTML = '';
+            DB.clientes.forEach(c => {
+                lista.innerHTML += `
+                    <div class="item-card">
+                        <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
+                        <div class="item-info"><h4>${c.nome}</h4><p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p></div>
+                    </div>`;
+            });
+        }
+
+        function preencherSelectsVenda() {
+            const prodSelect = document.getElementById('venda-produto-select');
+            const cliSelect = document.getElementById('venda-cliente-select');
+            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+            DB.produtos.forEach(p => { prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${p.venda.toFixed(2)}</option>`; });
+            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
+            DB.clientes.forEach(c => { cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`; });
+            renderVendasRecentes();
+        }
+
+        async function registrarVenda() {
+            const prodId = document.getElementById('venda-produto-select').value;
+            const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
+            const pagamento = document.getElementById('venda-pagamento').value;
+            if(!prodId || qtd <= 0) return;
+
+            const produto = DB.produtos.find(p => p.id == prodId);
+            if(produto.qtd < qtd) { alert('Estoque insuficiente!'); return; }
+
+            const novaQtd = produto.qtd - qtd;
+            
+            // Atualiza estoque do produto e cria registro da venda
+            await supabase.from('produtos').update({ qtd: novaQtd }).eq('id', prodId);
+            await supabase.from('vendas').insert([{
+                data: new Date().toISOString().split('T')[0],
+                produtoNome: produto.nome,
+                qtd,
+                total: produto.venda * qtd,
+                lucro: (produto.venda - produto.custo) * qtd,
+                pagamento
+            }]);
+
+            alert('Venda realizada! 🛍️');
+        }
+
+        function renderVendasRecentes() {
+            const lista = document.getElementById('lista-vendas-recentes');
+            lista.innerHTML = '';
+            DB.vendas.slice(0, 5).forEach(v => {
+                lista.innerHTML += `
+                    <div class="item-card" style="border-left: 4px solid var(--success);">
+                        <div class="item-info"><h4>${v.produtoNome} (x${v.qtd})</h4><p>${v.pagamento}</p></div>
+                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${v.total.toFixed(2)}</span></div>
+                    </div>`;
+            });
+        }
+
+        function calcularMetricas() {
+            const hoje = new Date().toISOString().split('T')[0];
+            let fatDia = 0, fatMes = 0, lucroMes = 0, despesas = 0;
+
+            DB.vendas.forEach(v => {
+                if(v.data === hoje) fatDia += v.total;
+                // Filtragem simplificada de faturamento mensal baseado no ano/mês vigente
+                if(v.data.substring(0,7) === hoje.substring(0,7)) {
+                    fatMes += v.total; 
+                    lucroMes += v.lucro;
+                }
+            });
+            DB.produtos.forEach(p => { despesas += (p.custo * p.qtd); });
+
+            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+            document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
+            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
+
+            document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+            document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+            document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
+            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            
+            let contagem = {};
+            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
+            let ord = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
+            if(ord.length > 0) {
+                document.getElementById('rel-mais-vendido').innerText = `${ord[0]} (${contagem[ord[0]]} un)`;
+                document.getElementById('rel-menos-vendido').innerText = `${ord[ord.length - 1]} (${contagem[ord[ord.length - 1]]} un)`;
+            }
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const texto = input.value.trim(); if(!texto) return;
+            renderBubble(texto, 'user'); input.value = '';
+            setTimeout(() => { processarRespostaIA(texto); }, 400);
+        }
+
+        function askLadyIA(pergunta) {
+            renderBubble(pergunta, 'user');
+            setTimeout(() => { processarRespostaIA(pergunta); }, 400);
+        }
+
+        function renderBubble(texto, side) {
+            const box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function processarRespostaIA(pergunta) {
+            const p = pergunta.toLowerCase();
+            let resposta = "Posso te ajudar com dados de faturamento, estoque ou lucro atuais da Quarteto da Drikka!";
+            let fatTotal = DB.vendas.reduce((acc, v) => acc + v.total, 0);
+            let lucTotal = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
+
+            if (p.includes('faturamento') || p.includes('vendas')) {
+                resposta = `O faturamento acumulado no sistema é de **R$ ${fatTotal.toFixed(2)}**.`;
+            } else if (p.includes('estoque') || p.includes('produtos')) {
+                resposta = `Temos **${DB.produtos.reduce((acc, prod) => acc + prod.qtd, 0)} itens** físicos em estoque.`;
+            } else if (p.includes('lucro')) {
+                resposta = `O lucro total registrado até agora é de **R$ ${lucTotal.toFixed(2)}**.`;
+            }
+            renderBubble(resposta, 'lady');
+        }
+
+        window.onload = () => {
+            checkUser();
+            document.getElementById('chat-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') sendChat(); });
+        };
+    </script>
+</body>
+</html>
             background-color: var(--purple-bg);
             color: var(--dark);
             display: flex;

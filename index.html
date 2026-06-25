@@ -7,7 +7,7 @@
     <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2=family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Supabase JS Library -->
@@ -454,8 +454,12 @@
             DB.clientes = c || [];
 
             calcularMetricas();
+            
+            // Renderiza apenas na tela atual ativa para evitar misturas
             if(document.getElementById('screen-estoque').classList.contains('active')) renderEstoque();
             if(document.getElementById('screen-vendas').classList.contains('active')) preencherSelectsVenda();
+            if(document.getElementById('screen-configuracoes').classList.contains('active')) renderClientes();
+            if(document.getElementById('screen-relatorios').classList.contains('active')) calcularMetricas();
         }
 
         // Sincronização em Tempo Real (Múltiplos Usuários)
@@ -467,11 +471,21 @@
             .subscribe();
         }
 
+        // Função de Troca de Tela Corrigida (Limpa as listas antigas antes de desenhar)
         function switchScreen(screenId, element) {
             document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
             document.getElementById(`screen-${screenId}`).classList.add('active');
             element.classList.add('active');
+
+            const listaProd = document.getElementById('lista-produtos');
+            const listaCli = document.getElementById('lista-clientes');
+            const listaVend = document.getElementById('lista-vendas-recentes');
+
+            if (listaProd) listaProd.innerHTML = '';
+            if (listaCli) listaCli.innerHTML = '';
+            if (listaVend) listaVend.innerHTML = '';
 
             if(screenId === 'estoque') renderEstoque();
             if(screenId === 'vendas') preencherSelectsVenda();
@@ -559,6 +573,7 @@
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
+            if (!lista) return;
             const busca = document.getElementById('search-produto').value.toLowerCase();
             lista.innerHTML = '';
             const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
@@ -592,6 +607,7 @@
 
         function renderClientes() {
             const lista = document.getElementById('lista-clientes');
+            if (!lista) return;
             lista.innerHTML = '';
             DB.clientes.forEach(c => {
                 lista.innerHTML += `
@@ -605,6 +621,8 @@
         function preencherSelectsVenda() {
             const prodSelect = document.getElementById('venda-produto-select');
             const cliSelect = document.getElementById('venda-cliente-select');
+            if(!prodSelect) return;
+            
             prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
             DB.produtos.forEach(p => { prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${p.venda.toFixed(2)}</option>`; });
             cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
@@ -623,7 +641,6 @@
 
             const novaQtd = produto.qtd - qtd;
             
-            // Atualiza estoque do produto e cria registro da venda
             await supabase.from('produtos').update({ qtd: novaQtd }).eq('id', prodId);
             await supabase.from('vendas').insert([{
                 data: new Date().toISOString().split('T')[0],
@@ -639,6 +656,7 @@
 
         function renderVendasRecentes() {
             const lista = document.getElementById('lista-vendas-recentes');
+            if (!lista) return;
             lista.innerHTML = '';
             DB.vendas.slice(0, 5).forEach(v => {
                 lista.innerHTML += `
@@ -655,7 +673,6 @@
 
             DB.vendas.forEach(v => {
                 if(v.data === hoje) fatDia += v.total;
-                // Filtragem simplificada de faturamento mensal baseado no ano/mês vigente
                 if(v.data.substring(0,7) === hoje.substring(0,7)) {
                     fatMes += v.total; 
                     lucroMes += v.lucro;
@@ -663,22 +680,26 @@
             });
             DB.produtos.forEach(p => { despesas += (p.custo * p.qtd); });
 
-            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
-            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
+            const dFatMes = document.getElementById('dash-faturamento-mes');
+            if(dFatMes) {
+                dFatMes.innerText = `R$ ${fatMes.toFixed(2)}`;
+                document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+                document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+                document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
+                document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
 
-            document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
-            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+                document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+                document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+                document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
+                document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            }
             
             let contagem = {};
             DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
             let ord = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
-            if(ord.length > 0) {
-                document.getElementById('rel-mais-vendido').innerText = `${ord[0]} (${contagem[ord[0]]} un)`;
+            const rMais = document.getElementById('rel-mais-vendido');
+            if(rMais && ord.length > 0) {
+                rMais.innerText = `${ord[0]} (${contagem[ord[0]]} un)`;
                 document.getElementById('rel-menos-vendido').innerText = `${ord[ord.length - 1]} (${contagem[ord[ord.length - 1]]} un)`;
             }
         }
@@ -697,6 +718,7 @@
 
         function renderBubble(texto, side) {
             const box = document.getElementById('chat-box');
+            if(!box) return;
             box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
             box.scrollTop = box.scrollHeight;
         }
@@ -719,8 +741,12 @@
 
         window.onload = () => {
             checkUser();
-            document.getElementById('chat-input').addEventListener('keypress', function(e) { if(e.key === 'Enter') sendChat(); });
+            const cInput = document.getElementById('chat-input');
+            if(cInput) {
+                cInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') sendChat(); });
+            }
         };
     </script>
 </body>
 </html>
+

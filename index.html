@@ -4,13 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LADY 💜 - Quarteto da Drikka</title>
+    <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Script do Supabase v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDK (v10) via CDN Modules -->
+    <script type="importmap">
+        {
+            "imports": {
+                "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+                "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
+                "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js",
+                "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"
+            }
+        }
+    </script>
 
     <style>
         :root {
@@ -44,45 +54,18 @@
             align-items: flex-start;
             min-height: 100vh;
             overflow-x: hidden;
+            padding-bottom: 75px;
         }
 
-        /* Tela de Login */
-        #login-screen {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100vh;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 30px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.05);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header h1 {
-            font-size: 36px;
-            color: var(--purple-main);
-            font-weight: 700;
-        }
-
-        .login-header h1 span { color: var(--gold); }
-
-        /* Container Principal do App */
         .app-container {
-            display: none;
             width: 100%;
             max-width: 480px;
             background: var(--white);
             min-height: 100vh;
+            display: flex;
             flex-direction: column;
             position: relative;
             box-shadow: 0 0 30px rgba(0,0,0,0.05);
-            padding-bottom: 75px;
         }
 
         header {
@@ -112,7 +95,10 @@
         .app-screen { display: none; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
         .app-screen.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         h2 { font-size: 18px; color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
@@ -126,18 +112,23 @@
         .text-success { color: var(--success) !important; }
         .text-danger { color: var(--danger) !important; }
 
-        .btn-primary { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main); font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--purple-main), #7315CA);
+            color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main);
+            font-weight: 600; font-size: 14px; cursor: pointer; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s;
+        }
         .btn-primary:active { transform: scale(0.98); }
+        .btn-secondary { background: #E2E8F0; color: var(--dark); border: none; padding: 10px; border-radius: var(--radius-main); font-weight: 500; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px;}
 
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--dark); }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; transition: 0.2s; background: var(--gray-light); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; background: var(--gray-light); }
         .form-control:focus { border-color: var(--purple-main); background: var(--white); }
 
         .list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
         .item-card { display: flex; align-items: center; background: var(--white); border: 1px solid #F0E6FF; padding: 12px; border-radius: var(--radius-main); gap: 12px; }
-        .item-img-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; color: var(--purple-main); font-size: 20px; overflow: hidden;}
-        .item-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .item-img-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; background: var(--purple-bg); display: flex; align-items: center; justify-content: center; color: var(--purple-main); font-size: 20px; }
         .item-info { flex: 1; }
         .item-info h4 { font-size: 14px; font-weight: 600; }
         .item-info p { font-size: 11px; color: var(--gray-text); }
@@ -150,48 +141,55 @@
         .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
         .chat-bubble.lady { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: white; align-self: flex-start; border-top-left-radius: 4px; }
         .chat-bubble.user { background: var(--purple-light); color: var(--dark); align-self: flex-end; border-top-right-radius: 4px; }
+
         .chat-suggestions { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
         .suggestion-tag { background: var(--white); border: 1px solid var(--purple-light); padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--purple-main); font-weight: 500; }
 
-        nav.nav-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999; }
-        .nav-item { background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; display: flex; flex-direction: column; align-items: center; }
+        nav.nav-bottom {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
+            background: var(--white); display: flex; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999;
+            display: none;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; }
         .nav-item i { font-size: 20px; margin-bottom: 3px; }
         .nav-item.active { color: var(--purple-main); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--white); border-radius: var(--radius-main); width: 100%; max-width: 400px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
         .mt-3 { margin-top: 15px; }
         .mb-3 { margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN INTEGRADA -->
-    <div id="login-screen">
-        <div class="login-header">
-            <h1>LADY <span>💜</span></h1>
-            <p style="color: var(--gray-text); letter-spacing: 1px; font-size: 12px;">QUARTETO DA DRIKKA</p>
-        </div>
-        <div class="form-group">
-            <label>E-mail de Acesso</label>
-            <input type="email" id="login-email" class="form-control" placeholder="admin@quartetodadrikka.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 25px;">
-            <label>Senha Secreta</label>
-            <input type="password" id="login-password" class="form-control" placeholder="••••••••">
-        </div>
-        <button class="btn-primary" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Sistema</button>
-    </div>
-
-    <!-- CONTAINER DO APP PRINCIPAL -->
-    <div class="app-container" id="main-app">
+    <div class="app-container">
+        <!-- Header -->
         <header>
             <h1>LADY <span>💜</span></h1>
             <p>A inteligência da sua loja</p>
         </header>
 
-        <section id="screen-dashboard" class="app-screen active">
+        <!-- 0. TELA DE AUTENTICAÇÃO -->
+        <section id="screen-auth" class="app-screen active">
+            <h2 id="auth-title"><i class="fa-solid fa-lock"></i> Entrar no Sistema</h2>
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="auth-email" class="form-control" placeholder="seuemail@provedor.com">
+            </div>
+            <div class="form-group" id="group-password">
+                <label>Senha</label>
+                <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn-primary mt-3" id="btn-auth-main" onclick="handleAuth()">Entrar</button>
+            <button class="btn-secondary" id="btn-auth-switch" onclick="switchAuthMode()">Não tem conta? Cadastre-se</button>
+            <button class="btn-icon mt-3" id="btn-auth-reset" onclick="handleResetPassword()" style="font-size:12px; width:100%; color:var(--gray-text)">Esqueceu sua senha?</button>
+        </section>
+
+        <!-- 1. DASHBOARD -->
+        <section id="screen-dashboard" class="app-screen">
             <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
             <div class="dash-grid">
                 <div class="dash-card full-width">
@@ -223,6 +221,7 @@
 
             <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
 
+            <!-- Lady IA -->
             <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
             <div class="chat-suggestions">
                 <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
@@ -231,7 +230,7 @@
                 <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
             </div>
             <div class="chat-container" id="chat-box">
-                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar na gestão hoje? ✨</div>
+                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar hoje? ✨</div>
             </div>
             <div style="display: flex; gap: 8px;">
                 <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
@@ -239,6 +238,7 @@
             </div>
         </section>
 
+        <!-- 2. ESTOQUE -->
         <section id="screen-estoque" class="app-screen">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
@@ -248,6 +248,7 @@
             <div class="list-container" id="lista-produtos"></div>
         </section>
 
+        <!-- 3. VENDAS -->
         <section id="screen-vendas" class="app-screen">
             <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
             <div class="form-group">
@@ -273,10 +274,11 @@
             </div>
             <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
 
-            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas Realizadas</h3>
+            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas</h3>
             <div class="list-container" id="lista-vendas-recentes"></div>
         </section>
 
+        <!-- 4. RELATÓRIOS & FINANCEIRO -->
         <section id="screen-relatorios" class="app-screen">
             <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
             <div class="dash-grid">
@@ -304,29 +306,29 @@
                 <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
             </div>
             <div class="dash-card full-width mb-3">
-                <p>⚠️ Menor Saída / Encalhado</p>
+                <p>⚠️ Menor Saída</p>
                 <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
             </div>
         </section>
 
+        <!-- 5. CONFIGURAÇÕES / CLIENTES -->
         <section id="screen-configuracoes" class="app-screen">
             <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
             <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
                 <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
-                <div class="form-group">
-                    <input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo">
-                </div>
-                <div class="form-group">
-                    <input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp">
-                </div>
+                <div class="form-group"><input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo"></div>
+                <div class="form-group"><input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp"></div>
                 <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
             </div>
             <h3>Lista de Clientes</h3>
             <div class="list-container" id="lista-clientes"></div>
+            
+            <button class="btn-secondary mt-3" onclick="handleLogout()" style="background:var(--danger); color:white;"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
         </section>
 
-        <nav class="nav-bottom">
-            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dashboard</button>
+        <!-- Menu Inferior Móvel -->
+        <nav class="nav-bottom" id="main-nav">
+            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dash</button>
             <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
             <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
             <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
@@ -343,114 +345,188 @@
             </div>
             <input type="hidden" id="prod-id">
             <div class="form-group">
-                <label>Imagem do Produto</label>
-                <input type="file" id="prod-img" class="form-control" accept="image/*" onchange="triggerImageBase64(this)">
-                <input type="hidden" id="prod-img-base64">
+                <label>Imagem (Foto)</label>
+                <input type="file" id="prod-img" class="form-control" accept="image/*">
             </div>
-            <div class="form-group">
-                <label>Nome do Produto</label>
-                <input type="text" id="prod-nome" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Categoria</label>
-                <input type="text" id="prod-categoria" class="form-control" placeholder="Ex: Vestidos, Conjuntos">
-            </div>
-            <div class="form-group">
-                <label>Quantidade em Estoque</label>
-                <input type="number" id="prod-qtd" class="form-control" min="0" required>
-            </div>
-            <div class="form-group">
-                <label>Preço de Custo (R$)</label>
-                <input type="number" id="prod-custo" class="form-control" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Preço de Venda (R$)</label>
-                <input type="number" id="prod-venda" class="form-control" step="0.01" required>
-            </div>
-            <div class="form-group">
-                <label>Descrição</label>
-                <textarea id="prod-desc" class="form-control" rows="2"></textarea>
-            </div>
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="prod-nome" class="form-control"></div>
+            <div class="form-group"><label>Categoria</label><input type="text" id="prod-categoria" class="form-control"></div>
+            <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="prod-qtd" class="form-control" min="0"></div>
+            <div class="form-group"><label>Preço de Custo (R$)</label><input type="number" id="prod-custo" class="form-control" step="0.01"></div>
+            <div class="form-group"><label>Preço de Venda (R$)</label><input type="number" id="prod-venda" class="form-control" step="0.01"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="prod-desc" class="form-control" rows="2"></textarea></div>
             <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
         </div>
     </div>
 
-    <script>
-        // Configuração do Supabase Client
-        const SUPABASE_URL = "https://zdxjvpafyxjbtnyxexsq.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_ND1CE4iBtRZ-XxJVi6HmpQ_P0XEZecy"; 
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        // Verifica se o usuário já está logado ao carregar a página
-window.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await _supabase.auth.getSession();
-    
-    if (session) {
-        // Se existir uma sessão, esconde o login e mostra o app
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'flex';
-        await pullFromSupabase();
-    }
-});
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
+        // CONFIGURAÇÕES DO FIREBASE — INSIRA SUAS CREDENCIAIS AQUI
+        const firebaseConfig = {
+            apiKey: "COLE_AQUI",
+            authDomain: "COLE_AQUI",
+            projectId: "COLE_AQUI",
+            storageBucket: "COLE_AQUI",
+            messagingSenderId: "COLE_AQUI",
+            appId: "COLE_AQUI"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
         let DB = { produtos: [], vendas: [], clientes: [] };
+        let authMode = 'login';
 
-        async function realizarLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+        // Controle de Autenticação
+        function checkUser() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    showApp();
+                } else {
+                    showAuth();
+                }
+            });
+        }
 
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        function showAuth() {
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-auth').classList.add('active');
+            document.getElementById('main-nav').style.display = 'none';
+        }
 
-            if (error) {
-                alert("Erro no login: " + error.message);
+        function showApp() {
+            document.getElementById('screen-auth').classList.remove('active');
+            document.getElementById('screen-dashboard').classList.add('active');
+            document.getElementById('main-nav').style.display = 'flex';
+            initRealtimeSync();
+        }
+
+        function switchAuthMode() {
+            const title = document.getElementById('auth-title');
+            const btnMain = document.getElementById('btn-auth-main');
+            const btnSwitch = document.getElementById('btn-auth-switch');
+            const passGroup = document.getElementById('group-password');
+
+            if (authMode === 'login') {
+                authMode = 'cadastro';
+                title.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar Nova Conta';
+                btnMain.innerText = 'Cadastrar';
+                btnSwitch.innerText = 'Já tem conta? Faça Login';
+                passGroup.style.display = 'block';
             } else {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'flex';
-                await pullFromSupabase();
+                authMode = 'login';
+                title.innerHTML = '<i class="fa-solid fa-lock"></i> Entrar no Sistema';
+                btnMain.innerText = 'Entrar';
+                btnSwitch.innerText = 'Não tem conta? Cadastre-se';
+                passGroup.style.display = 'block';
             }
         }
 
-        async function pullFromSupabase() {
-            const { data, error } = await _supabase
-    .from('lady_produtos')
-    .select('*');
+        async function handleAuth() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
 
-console.log("DATA:", data);
-console.log("ERRO:", error);
-            let v = await _supabase.from('lady_vendas').select('*');
-            let c = await _supabase.from('lady_clientes').select('*');
+            if(!email || (authMode !== 'recup' && !password)) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
 
-            DB.produtos = p.data || [];
-            DB.vendas = v.data || [];
-            DB.clientes = c.data || [];
+            try {
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else if (authMode === 'cadastro') {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    alert('Cadastro realizado com sucesso!');
+                } else if (authMode === 'recup') {
+                    await sendPasswordResetEmail(auth, email);
+                    alert('E-mail de recuperação enviado!');
+                }
+            } catch (error) {
+                alert('Erro na autenticação: ' + error.message);
+            }
+        }
 
+        async function handleResetPassword() {
+            authMode = 'recup';
+            document.getElementById('auth-title').innerHTML = '<i class="fa-solid fa-key"></i> Recuperar Senha';
+            document.getElementById('btn-auth-main').innerText = 'Enviar E-mail de Recuperação';
+            document.getElementById('group-password').style.display = 'none';
+            document.getElementById('btn-auth-switch').innerText = 'Voltar para o Login';
+        }
+
+        async function handleLogout() {
+            await signOut(auth);
+            location.reload();
+        }
+
+        // Sincronização em Tempo Real (Múltiplos Usuários via Firebase Streams)
+        function initRealtimeSync() {
+            const qProdutos = query(collection(db, "lady_produtos"), orderBy("nome"));
+            onSnapshot(qProdutos, (snapshot) => {
+                DB.produtos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateCurrentView();
+            });
+
+            const qVendas = query(collection(db, "lady_vendas"), orderBy("createdAt", "desc"));
+            onSnapshot(qVendas, (snapshot) => {
+                DB.vendas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateCurrentView();
+            });
+
+            const qClientes = query(collection(db, "lady_clientes"), orderBy("nome"));
+            onSnapshot(qClientes, (snapshot) => {
+                DB.clientes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                updateCurrentView();
+            });
+        }
+
+        function updateCurrentView() {
             calcularMetricas();
-            renderEstoque();
-            preencherSelectsVenda();
-            renderClientes();
+            if(document.getElementById('screen-estoque').classList.contains('active')) renderEstoque();
+            if(document.getElementById('screen-vendas').classList.contains('active')) preencherSelectsVenda();
+            if(document.getElementById('screen-configuracoes').classList.contains('active')) renderClientes();
         }
 
         function switchScreen(screenId, element) {
             document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            
             document.getElementById(`screen-${screenId}`).classList.add('active');
             element.classList.add('active');
-            pullFromSupabase();
+
+            const listaProd = document.getElementById('lista-produtos');
+            const listaCli = document.getElementById('lista-clientes');
+            const listaVend = document.getElementById('lista-vendas-recentes');
+
+            if (listaProd) listaProd.innerHTML = '';
+            if (listaCli) listaCli.innerHTML = '';
+            if (listaVend) listaVend.innerHTML = '';
+
+            if(screenId === 'estoque') renderEstoque();
+            if(screenId === 'vendas') preencherSelectsVenda();
+            if(screenId === 'configuracoes') renderClientes();
+            if(screenId === 'relatorios') calcularMetricas();
         }
 
-        function triggerImageBase64(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { document.getElementById('prod-img-base64').value = e.target.result; }
-                reader.readAsDataURL(input.files[0]);
-            }
+        async function uploadImagem(file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const storageRef = ref(storage, `produtos/${fileName}`);
+            
+            await uploadBytes(storageRef, file);
+            return await getDownloadURL(storageRef);
         }
 
         function openProductModal(id = null) {
             document.getElementById('product-modal').style.display = 'flex';
             if(id) {
                 document.getElementById('modal-title').innerText = "Editar Produto";
-                const p = DB.produtos.find(prod => prod.id === id);
+                const p = DB.produtos.find(prod => prod.id == id);
                 document.getElementById('prod-id').value = p.id;
                 document.getElementById('prod-nome').value = p.nome;
                 document.getElementById('prod-categoria').value = p.categoria;
@@ -458,7 +534,6 @@ console.log("ERRO:", error);
                 document.getElementById('prod-custo').value = p.custo;
                 document.getElementById('prod-venda').value = p.venda;
                 document.getElementById('prod-desc').value = p.descricao;
-                document.getElementById('prod-img-base64').value = p.imagem || '';
             } else {
                 document.getElementById('modal-title').innerText = "Cadastrar Produto";
                 document.getElementById('prod-id').value = '';
@@ -468,7 +543,7 @@ console.log("ERRO:", error);
                 document.getElementById('prod-custo').value = '';
                 document.getElementById('prod-venda').value = '';
                 document.getElementById('prod-desc').value = '';
-                document.getElementById('prod-img-base64').value = '';
+                document.getElementById('prod-img').value = '';
             }
         }
 
@@ -482,74 +557,84 @@ console.log("ERRO:", error);
             const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
             const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
             const descricao = document.getElementById('prod-desc').value;
-            const imagem = document.getElementById('prod-img-base64').value;
+            const imgFile = document.getElementById('prod-img').files[0];
 
-            if(!nome || qtd < 0 || custo <= 0 || venda <= 0) return alert('Campos obrigatórios inválidos.');
+            if(!nome || custo <= 0 || venda <= 0) { alert('Preencha os campos obrigatórios.'); return; }
 
-            const payload = { nome, categoria, qtd, custo, venda, descricao, imagem };
+            try {
+                let imagemUrl = null;
+                if (imgFile) {
+                    imagemUrl = await uploadImagem(imgFile);
+                } else if (id) {
+                    const current = DB.produtos.find(p => p.id == id);
+                    imagemUrl = current ? current.imagem : null;
+                }
 
-            if(id) {
-                await _supabase.from('lady_produtos').update(payload).eq('id', id);
-            } else {
-                await _supabase.from('lady_produtos').insert([payload]);
+                const payload = { nome, categoria, qtd, custo, venda, descricao, imagem: imagemUrl, createdAt: serverTimestamp() };
+
+                if(id) {
+                    await updateDoc(doc(db, "lady_produtos", id), payload);
+                } else {
+                    await addDoc(collection(db, "lady_produtos"), payload);
+                }
+                closeProductModal();
+            } catch (error) {
+                alert("Erro ao salvar produto: " + error.message);
             }
-
-            closeProductModal();
-            await pullFromSupabase();
         }
 
         async function excluirProduto(id) {
-            if(confirm("Deseja deletar este produto?")) {
-                await _supabase.from('lady_produtos').delete().eq('id', id);
-                await pullFromSupabase();
+            if(confirm("Deseja excluir este produto?")) { 
+                await deleteDoc(doc(db, "lady_produtos", id));
             }
         }
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
+            if (!lista) return;
             const busca = document.getElementById('search-produto').value.toLowerCase();
             lista.innerHTML = '';
             const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
 
             filtrados.forEach(p => {
-                const imgTag = p.imagem ? `<img src="${p.imagem}">` : `<i class="fa-solid fa-image"></i>`;
+                const imgTag = p.imagem ? `<img src="${p.imagem}" class="item-img-thumb">` : `<div class="item-img-thumb"><i class="fa-solid fa-image"></i></div>`;
                 lista.innerHTML += `
                     <div class="item-card">
-                        <div class="item-img-thumb">${imgTag}</div>
+                        ${imgTag}
                         <div class="item-info">
                             <h4>${p.nome}</h4>
-                            <p>Preço: <b>R$ ${Number(p.venda).toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
+                            <p>Preço: <b>R$ ${p.venda.toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
                         </div>
                         <div class="item-actions">
-                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn-icon delete" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn-icon edit" data-id="${p.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon delete" data-id="${p.id}"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>`;
             });
+
+            lista.querySelectorAll('.edit').forEach(btn => btn.onclick = () => openProductModal(btn.getAttribute('data-id')));
+            lista.querySelectorAll('.delete').forEach(btn => btn.onclick = () => excluirProduto(btn.getAttribute('data-id')));
         }
 
         async function cadastrarCliente() {
             const nome = document.getElementById('cliente-nome').value;
             const fone = document.getElementById('cliente-fone').value;
-            if(!nome || !fone) return alert('Preencha os campos!');
+            if(!nome || !fone) return;
 
-            await _supabase.from('lady_clientes').insert([{ nome, fone, comprasCount: 0 }]);
+            await addDoc(collection(db, "lady_clientes"), { nome, fone, comprasCount: 0, createdAt: serverTimestamp() });
             document.getElementById('cliente-nome').value = '';
             document.getElementById('cliente-fone').value = '';
-            await pullFromSupabase();
         }
 
         function renderClientes() {
             const lista = document.getElementById('lista-clientes');
+            if (!lista) return;
             lista.innerHTML = '';
             DB.clientes.forEach(c => {
                 lista.innerHTML += `
                     <div class="item-card">
                         <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
-                        <div class="item-info">
-                            <h4>${c.nome}</h4>
-                            <p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p>
-                        </div>
+                        <div class="item-info"><h4>${c.nome}</h4><p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p></div>
                     </div>`;
             });
         }
@@ -557,11 +642,12 @@ console.log("ERRO:", error);
         function preencherSelectsVenda() {
             const prodSelect = document.getElementById('venda-produto-select');
             const cliSelect = document.getElementById('venda-cliente-select');
-            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
-            DB.produtos.forEach(p => prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${Number(p.venda).toFixed(2)}</option>`);
+            if(!prodSelect) return;
             
+            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+            DB.produtos.forEach(p => { prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${p.venda.toFixed(2)}</option>`; });
             cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
-            DB.clientes.forEach(c => cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`);
+            DB.clientes.forEach(c => { cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`; });
             renderVendasRecentes();
         }
 
@@ -570,45 +656,48 @@ console.log("ERRO:", error);
             const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
             const pagamento = document.getElementById('venda-pagamento').value;
             const clienteId = document.getElementById('venda-cliente-select').value;
+            if(!prodId || qtd <= 0) return;
 
-            if(!prodId || qtd <= 0) return alert('Selecione dados válidos.');
             const produto = DB.produtos.find(p => p.id == prodId);
-            if(produto.qtd < qtd) return alert('Estoque insuficiente!');
+            if(produto.qtd < qtd) { alert('Estoque insuficiente!'); return; }
 
-            let novoEstoque = produto.qtd - qtd;
-            await _supabase.from('lady_produtos').update({ qtd: novoEstoque }).eq('id', prodId);
+            try {
+                const novaQtd = produto.qtd - qtd;
+                await updateDoc(doc(db, "lady_produtos", prodId), { qtd: novaQtd });
+                
+                await addDoc(collection(db, "lady_vendas"), {
+                    data: new Date().toISOString().split('T')[0],
+                    produtoId: prodId,
+                    produtoNome: produto.nome,
+                    qtd,
+                    total: produto.venda * qtd,
+                    lucro: (produto.venda - produto.custo) * qtd,
+                    custo: produto.custo * qtd,
+                    pagamento,
+                    createdAt: serverTimestamp()
+                });
 
-            if(clienteId) {
-                const cliente = DB.clientes.find(c => c.id == clienteId);
-                await _supabase.from('lady_clientes').update({ comprasCount: (cliente.comprasCount || 0) + 1 }).eq('id', clienteId);
+                if (clienteId) {
+                    const cliente = DB.clientes.find(c => c.id == clienteId);
+                    const totalCompras = (cliente.comprasCount || 0) + 1;
+                    await updateDoc(doc(db, "lady_clientes", clienteId), { comprasCount: totalCompras });
+                }
+
+                alert('Venda realizada! 🛍️');
+            } catch (error) {
+                alert("Erro ao registrar venda: " + error.message);
             }
-
-            await _supabase.from('lady_vendas').insert([{
-                data: new Date().toISOString().split('T')[0],
-                produtoNome: produto.nome,
-                produtoId: produto.id,
-                qtd,
-                total: produto.venda * qtd,
-                lucro: (produto.venda * qtd) - (produto.custo * qtd),
-                custo: produto.custo * qtd,
-                pagamento
-            }]);
-
-            alert('Venda registrada com sucesso!');
-            await pullFromSupabase();
         }
 
         function renderVendasRecentes() {
             const lista = document.getElementById('lista-vendas-recentes');
+            if (!lista) return;
             lista.innerHTML = '';
-            [...DB.vendas].reverse().slice(0, 5).forEach(v => {
+            DB.vendas.slice(0, 5).forEach(v => {
                 lista.innerHTML += `
                     <div class="item-card" style="border-left: 4px solid var(--success);">
-                        <div class="item-info">
-                            <h4>${v.produtoNome} (x${v.qtd})</h4>
-                            <p>Método: <b>${v.pagamento}</b></p>
-                        </div>
-                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${Number(v.total).toFixed(2)}</span></div>
+                        <div class="item-info"><h4>${v.produtoNome} (x${v.qtd})</h4><p>${v.pagamento}</p></div>
+                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${v.total.toFixed(2)}</span></div>
                     </div>`;
             });
         }
@@ -618,53 +707,95 @@ console.log("ERRO:", error);
             let fatDia = 0, fatMes = 0, lucroMes = 0, despesas = 0;
 
             DB.vendas.forEach(v => {
-                if(v.data === hoje) fatDia += Number(v.total);
-                fatMes += Number(v.total);
-                lucroMes += Number(v.lucro);
+                if(v.data === hoje) fatDia += v.total;
+                if(v.data && v.data.substring(0,7) === hoje.substring(0,7)) {
+                    fatMes += v.total; 
+                    lucroMes += v.lucro;
+                }
             });
+            DB.produtos.forEach(p => { despesas += (p.custo * p.qtd); });
 
-            DB.produtos.forEach(p => { despesas += (Number(p.custo) * p.qtd); });
+            const dFatMes = document.getElementById('dash-faturamento-mes');
+            if(dFatMes) {
+                dFatMes.innerText = `R$ ${fatMes.toFixed(2)}`;
+                document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+                document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+                document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
+                document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
 
-            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
-            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
-
-            document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-            document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-            document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
-            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+                document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
+                document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
+                document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
+                document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            }
+            
+            let contagem = {};
+            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
+            let ord = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
+            const rMais = document.getElementById('rel-mais-vendido');
+            if(rMais && ord.length > 0) {
+                rMais.innerText = `${ord[0]} (${contagem[ord[0]]} un)`;
+                document.getElementById('rel-menos-vendido').innerText = `${ord[ord.length - 1]} (${contagem[ord[ord.length - 1]]} un)`;
+            }
         }
 
         function sendChat() {
             const input = document.getElementById('chat-input');
-            if(!input.value.trim()) return;
-            renderBubble(input.value, 'user');
-            processarRespostaIA(input.value);
-            input.value = '';
+            const texto = input.value.trim(); if(!texto) return;
+            renderBubble(texto, 'user'); input.value = '';
+            setTimeout(() => { processarRespostaIA(texto); }, 400);
         }
 
-        function askLadyIA(msg) { renderBubble(msg, 'user'); processarRespostaIA(msg); }
-        function renderBubble(txt, side) { const b = document.getElementById('chat-box'); b.innerHTML += `<div class="chat-bubble ${side}">${txt}</div>`; b.scrollTop = b.scrollHeight; }
+        function askLadyIA(pergunta) {
+            renderBubble(pergunta, 'user');
+            setTimeout(() => { processarRespostaIA(pergunta); }, 400);
+        }
+
+        function renderBubble(texto, side) {
+            const box = document.getElementById('chat-box');
+            if(!box) return;
+            box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
+            box.scrollTop = box.scrollHeight;
+        }
 
         function processarRespostaIA(pergunta) {
             const p = pergunta.toLowerCase();
-            let r = "Posso te dar dados sobre Faturamento, Estoque ou Lucro da sua loja!";
-            
-            if (p.includes('faturamento')) {
-                r = `O faturamento bruto atual da loja na nuvem é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.total),0).toFixed(2)}**.`;
+            let resposta = "Posso te ajudar com dados de faturamento, estoque ou lucro atuais da Quarteto da Drikka!";
+            let fatTotal = DB.vendas.reduce((acc, v) => acc + v.total, 0);
+            let lucTotal = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
+
+            if (p.includes('faturamento') || p.includes('vendas')) {
+                resposta = `O faturamento acumulado no sistema é de **R$ ${fatTotal.toFixed(2)}**.`;
+            } else if (p.includes('estoque') || p.includes('produtos')) {
+                resposta = `Temos **${DB.produtos.reduce((acc, prod) => acc + prod.qtd, 0)} itens** físicos em estoque.`;
             } else if (p.includes('lucro')) {
-                r = `Seu lucro limpo calculado com base nos custos é **R$ ${DB.vendas.reduce((a,v)=>a+Number(v.lucro),0).toFixed(2)}**.`;
-            } else if (p.includes('estoque')) {
-                r = `Temos um total de **${DB.produtos.reduce((a,p)=>a+p.qtd,0)} itens** físicos em nosso acervo.`;
+                resposta = `O lucro total registrado até agora é de **R$ ${lucTotal.toFixed(2)}**.`;
             }
-            setTimeout(() => renderBubble(r, 'lady'), 300);
+            renderBubble(resposta, 'lady');
         }
 
-        window.onload = () => {
-            document.getElementById('chat-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') sendChat(); });
-        };
+        // Globalização de escopo para chamadas em atributos onClick do HTML nativo
+        window.handleAuth = handleAuth;
+        window.switchAuthMode = switchAuthMode;
+        window.handleResetPassword = handleResetPassword;
+        window.handleLogout = handleLogout;
+        window.switchScreen = switchScreen;
+        window.openProductModal = openProductModal;
+        window.closeProductModal = closeProductModal;
+        window.salvarProduto = salvarProduto;
+        window.cadastrarCliente = cadastrarCliente;
+        window.registrarVenda = registrarVenda;
+        window.sendChat = sendChat;
+        window.askLadyIA = askLadyIA;
+        window.renderEstoque = renderEstoque;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            const cInput = document.getElementById('chat-input');
+            if(cInput) {
+                cInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') sendChat(); });
+            }
+        });
     </script>
 </body>
-                                                                                                                                                     </html>
+</html>

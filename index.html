@@ -4,24 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LADY 💜 - Quarteto da Drikka</title>
-    <!-- Fontes e Ícones -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (v10) via CDN Modules -->
-    <script type="importmap">
-        {
-            "imports": {
-                "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
-                "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
-                "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js",
-                "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js": "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js"
-            }
-        }
-    </script>
-
     <style>
         :root {
             --purple-main: #8A2BE2;
@@ -102,7 +89,7 @@
 
         h2 { font-size: 18px; color: var(--dark); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .dash-grid { display: grid; grid-template-columns: repeat(2, 11fr); gap: 12px; margin-bottom: 20px; }
         .dash-card { background: var(--white); border: 1px solid rgba(200, 162, 255, 0.3); border-radius: var(--radius-main); padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
         .dash-card.full-width { grid-column: span 2; background: linear-gradient(135deg, #FAF7FF, var(--white)); border-left: 5px solid var(--purple-main); }
         .dash-card i { position: absolute; right: 15px; top: 15px; color: var(--purple-light); font-size: 18px; }
@@ -112,18 +99,12 @@
         .text-success { color: var(--success) !important; }
         .text-danger { color: var(--danger) !important; }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--purple-main), #7315CA);
-            color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main);
-            font-weight: 600; font-size: 14px; cursor: pointer; width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s;
-        }
+        .btn-primary { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: var(--white); border: none; padding: 12px 20px; border-radius: var(--radius-main); font-weight: 600; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-premium); transition: 0.2s; }
         .btn-primary:active { transform: scale(0.98); }
-        .btn-secondary { background: #E2E8F0; color: var(--dark); border: none; padding: 10px; border-radius: var(--radius-main); font-weight: 500; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px;}
 
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--dark); }
-        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; background: var(--gray-light); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #E2E8F0; border-radius: var(--radius-main); font-size: 14px; outline: none; transition: 0.2s; background: var(--gray-light); }
         .form-control:focus { border-color: var(--purple-main); background: var(--white); }
 
         .list-container { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
@@ -137,28 +118,22 @@
         .btn-icon.edit { color: var(--purple-main); }
         .btn-icon.delete { color: var(--danger); }
 
-        .chat-container { background: var(--gray-light); border-radius: var(--radius-main); height: 250px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #E2E8F0; }
+        .chat-container { background: var(--gray-light); border-radius: var(--radius-main); height: 200px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; border: 1px solid #E2E8F0; }
         .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
         .chat-bubble.lady { background: linear-gradient(135deg, var(--purple-main), #7315CA); color: white; align-self: flex-start; border-top-left-radius: 4px; }
         .chat-bubble.user { background: var(--purple-light); color: var(--dark); align-self: flex-end; border-top-right-radius: 4px; }
-
         .chat-suggestions { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; }
         .suggestion-tag { background: var(--white); border: 1px solid var(--purple-light); padding: 6px 12px; border-radius: 20px; font-size: 11px; white-space: nowrap; cursor: pointer; color: var(--purple-main); font-weight: 500; }
 
-        nav.nav-bottom {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px;
-            background: var(--white); display: flex; justify-content: space-around; padding: 10px 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999;
-            display: none;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; }
-        .nav-item i { font-size: 20px; margin-bottom: 3px; }
+        nav.nav-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 999; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--gray-text); font-size: 11px; font-weight: 500; cursor: pointer; width: 20%; transition: 0.2s; }
+        .nav-item i { font-size: 20px; margin-bottom: 3px; transition: 0.2s; }
         .nav-item.active { color: var(--purple-main); }
+        .nav-item.active i { transform: translateY(-2px); color: var(--purple-main); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-content { background: var(--white); border-radius: var(--radius-main); width: 100%; max-width: 400px; padding: 20px; max-height: 85vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-
         .mt-3 { margin-top: 15px; }
         .mb-3 { margin-bottom: 15px; }
     </style>
@@ -166,384 +141,240 @@
 <body>
 
     <div class="app-container">
-        <!-- Header -->
-        <header>
-            <h1>LADY <span>💜</span></h1>
-            <p>A inteligência da sua loja</p>
-        </header>
-
-        <!-- 0. TELA DE AUTENTICAÇÃO -->
-        <section id="screen-auth" class="app-screen active">
-            <h2 id="auth-title"><i class="fa-solid fa-lock"></i> Entrar no Sistema</h2>
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="auth-email" class="form-control" placeholder="seuemail@provedor.com">
+        <section id="screen-login" class="app-screen active" style="margin-top: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <span style="font-size: 50px;">💜</span>
+                <h2 style="justify-content: center; font-size: 24px; margin-top: 10px;">Acessar LADY</h2>
+                <p style="color: var(--gray-text); font-size: 13px;">Quarteto da Drikka - Controle Central</p>
             </div>
-            <div class="form-group" id="group-password">
+            <div class="form-group">
+                <label>Usuário</label>
+                <input type="text" id="login-usuario" class="form-control" placeholder="Ex: admin">
+            </div>
+            <div class="form-group">
                 <label>Senha</label>
-                <input type="password" id="auth-password" class="form-control" placeholder="••••••••">
+                <input type="password" id="login-senha" class="form-control" placeholder="***">
             </div>
-            <button class="btn-primary mt-3" id="btn-auth-main" onclick="handleAuth()">Entrar</button>
-            <button class="btn-secondary" id="btn-auth-switch" onclick="switchAuthMode()">Não tem conta? Cadastre-se</button>
-            <button class="btn-icon mt-3" id="btn-auth-reset" onclick="handleResetPassword()" style="font-size:12px; width:100%; color:var(--gray-text)">Esqueceu sua senha?</button>
+            <button class="btn-primary mt-3" onclick="realizarLogin()">Entrar no Sistema</button>
         </section>
 
-        <!-- 1. DASHBOARD -->
-        <section id="screen-dashboard" class="app-screen">
-            <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
-            <div class="dash-grid">
-                <div class="dash-card full-width">
-                    <i class="fa-solid fa-money-bill-trend-up text-success"></i>
-                    <p>Faturamento do Mês</p>
-                    <h3 id="dash-faturamento-mes">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-calendar-day"></i>
-                    <p>Faturamento Dia</p>
-                    <h3 id="dash-faturamento-dia">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-hand-holding-dollar text-success"></i>
-                    <p>Lucro do Mês</p>
-                    <h3 id="dash-lucro-mes">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-box"></i>
-                    <p>Total Produtos</p>
-                    <h3 id="dash-total-produtos">0</h3>
-                </div>
-                <div class="dash-card">
-                    <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                    <p>Estoque Baixo</p>
-                    <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
-                </div>
-            </div>
+        <div id="app-main-content" style="display: none;">
+            <header>
+                <h1>LADY <span>💜</span></h1>
+                <p>A inteligência da sua loja</p>
+            </header>
 
-            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
-
-            <!-- Lady IA -->
-            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
-            <div class="chat-suggestions">
-                <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Quais os produtos mais vendidos?')">Mais vendidos</div>
-                <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
-            </div>
-            <div class="chat-container" id="chat-box">
-                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar hoje? ✨</div>
-            </div>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
-                <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </section>
-
-        <!-- 2. ESTOQUE -->
-        <section id="screen-estoque" class="app-screen">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
-                <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Novo</button>
-            </div>
-            <input type="text" id="search-produto" class="form-control mb-3" placeholder="🔍 Buscar produto..." oninput="renderEstoque()">
-            <div class="list-container" id="lista-produtos"></div>
-        </section>
-
-        <!-- 3. VENDAS -->
-        <section id="screen-vendas" class="app-screen">
-            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
-            <div class="form-group">
-                <label>Selecionar Produto</label>
-                <select id="venda-produto-select" class="form-control"></select>
-            </div>
-            <div class="form-group">
-                <label>Quantidade</label>
-                <input type="number" id="venda-qtd" class="form-control" value="1" min="1">
-            </div>
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="venda-pagamento" class="form-control">
-                    <option value="Pix">Pix</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="Débito">Débito</option>
-                    <option value="Crédito">Crédito</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Vincular a um Cliente (Opcional)</label>
-                <select id="venda-cliente-select" class="form-control"></select>
-            </div>
-            <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
-
-            <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas</h3>
-            <div class="list-container" id="lista-vendas-recentes"></div>
-        </section>
-
-        <!-- 4. RELATÓRIOS & FINANCEIRO -->
-        <section id="screen-relatorios" class="app-screen">
-            <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
-            <div class="dash-grid">
-                <div class="dash-card">
-                    <p>Receita Diária</p>
-                    <h3 id="fin-receita-dia" class="text-success">R$ 0,00</h3>
+            <section id="screen-dashboard" class="app-screen">
+                <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
+                <div class="dash-grid">
+                    <div class="dash-card full-width">
+                        <i class="fa-solid fa-money-bill-trend-up text-success"></i>
+                        <p>Faturamento do Mês</p>
+                        <h3 id="dash-faturamento-mes">R$ 0,00</h3>
+                    </div>
+                    <div class="dash-card">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <p>Faturamento Dia</p>
+                        <h3 id="dash-faturamento-dia">R$ 0,00</h3>
+                    </div>
+                    <div class="dash-card">
+                        <i class="fa-solid fa-hand-holding-dollar text-success"></i>
+                        <p>Lucro do Mês</p>
+                        <h3 id="dash-lucro-mes">R$ 0,00</h3>
+                    </div>
+                    <div class="dash-card">
+                        <i class="fa-solid fa-box"></i>
+                        <p>Total Produtos</p>
+                        <h3 id="dash-total-produtos">0</h3>
+                    </div>
+                    <div class="dash-card">
+                        <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                        <p>Estoque Baixo</p>
+                        <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
+                    </div>
                 </div>
-                <div class="dash-card">
-                    <p>Receita Mensal</p>
-                    <h3 id="fin-receita-mes" class="text-success">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <p>Custos Totais</p>
-                    <h3 id="fin-despesas" class="text-danger">R$ 0,00</h3>
-                </div>
-                <div class="dash-card">
-                    <p>Lucro Líquido</p>
-                    <h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3>
-                </div>
-            </div>
 
-            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Desempenho de Produtos</h2>
-            <div class="dash-card full-width mb-3">
-                <p>⭐ Produto Mais Vendido</p>
-                <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
-            </div>
-            <div class="dash-card full-width mb-3">
-                <p>⚠️ Menor Saída</p>
-                <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
-            </div>
-        </section>
+                <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
 
-        <!-- 5. CONFIGURAÇÕES / CLIENTES -->
-        <section id="screen-configuracoes" class="app-screen">
-            <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
-            <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
-                <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
-                <div class="form-group"><input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo"></div>
-                <div class="form-group"><input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone / WhatsApp"></div>
-                <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
-            </div>
-            <h3>Lista de Clientes</h3>
-            <div class="list-container" id="lista-clientes"></div>
-            
-            <button class="btn-secondary mt-3" onclick="handleLogout()" style="background:var(--danger); color:white;"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
-        </section>
+                <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
+                <div class="chat-suggestions">
+                    <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
+                    <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
+                </div>
+                <div class="chat-container" id="chat-box">
+                    <div class="chat-bubble lady">Olá! Sou a Lady. Como posso ajudar na gestão hoje? ✨</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Pergunte algo...">
+                    <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </section>
 
-        <!-- Menu Inferior Móvel -->
-        <nav class="nav-bottom" id="main-nav">
-            <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dash</button>
-            <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
-            <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
-            <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
-            <button class="nav-item" onclick="switchScreen('configuracoes', this)"><i class="fa-solid fa-gear"></i>Config</button>
-        </nav>
+            <section id="screen-estoque" class="app-screen">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
+                    <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Novo</button>
+                </div>
+                <input type="text" id="search-produto" class="form-control mb-3" placeholder="🔍 Buscar produto..." oninput="renderEstoque()">
+                <div class="list-container" id="lista-produtos"></div>
+            </section>
+
+            <section id="screen-vendas" class="app-screen">
+                <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
+                <div class="form-group">
+                    <label>Selecionar Produto</label>
+                    <select id="venda-produto-select" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="venda-qtd" class="form-control" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select id="venda-pagamento" class="form-control">
+                        <option value="Pix">Pix</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Débito">Débito</option>
+                        <option value="Crédito">Crédito</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Vincular a um Cliente (Opcional)</label>
+                    <select id="venda-cliente-select" class="form-control"></select>
+                </div>
+                <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
+
+                <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas Realizadas</h3>
+                <div class="list-container" id="lista-vendas-recentes"></div>
+            </section>
+
+            <section id="screen-relatorios" class="app-screen">
+                <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
+                <div class="dash-grid">
+                    <div class="dash-card"><p>Receita Diária</p><h3 id="fin-receita-dia" class="text-success">R$ 0,00</h3></div>
+                    <div class="dash-card"><p>Receita Mensal</p><h3 id="fin-receita-mes" class="text-success">R$ 0,00</h3></div>
+                    <div class="dash-card"><p>Custos Totais</p><h3 id="fin-despesas" class="text-danger">R$ 0,00</h3></div>
+                    <div class="dash-card"><p>Lucro Líquido</p><h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3></div>
+                </div>
+            </section>
+
+            <section id="screen-configuracoes" class="app-screen">
+                <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
+                <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
+                    <h3 style="font-size: 14px; margin-bottom: 10px;">Cadastrar Novo Cliente</h3>
+                    <div class="form-group"><input type="text" id="cliente-nome" class="form-control" placeholder="Nome Completo"></div>
+                    <div class="form-group"><input type="tel" id="cliente-fone" class="form-control" placeholder="Telefone"></div>
+                    <button class="btn-primary" onclick="cadastrarCliente()"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
+                </div>
+                <h3>Lista de Clientes</h3>
+                <div class="list-container" id="lista-clientes"></div>
+            </section>
+
+            <nav class="nav-bottom">
+                <button class="nav-item active" onclick="switchScreen('dashboard', this)"><i class="fa-solid fa-house"></i>Dashboard</button>
+                <button class="nav-item" onclick="switchScreen('estoque', this)"><i class="fa-solid fa-box-open"></i>Estoque</button>
+                <button class="nav-item" onclick="switchScreen('vendas', this)"><i class="fa-solid fa-cart-shopping"></i>Vendas</button>
+                <button class="nav-item" onclick="switchScreen('relatorios', this)"><i class="fa-solid fa-chart-simple"></i>Relatórios</button>
+                <button class="nav-item" onclick="switchScreen('configuracoes', this)"><i class="fa-solid fa-gear"></i>Config</button>
+            </nav>
+        </div>
     </div>
 
-    <!-- MODAL DE PRODUTO -->
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modal-title" style="color: var(--purple-main);">Cadastrar Produto</h3>
-                <button class="btn-icon" onclick="closeProductModal()" style="font-size: 20px;"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-icon" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <input type="hidden" id="prod-id">
-            <div class="form-group">
-                <label>Imagem (Foto)</label>
-                <input type="file" id="prod-img" class="form-control" accept="image/*">
-            </div>
-            <div class="form-group"><label>Nome do Produto</label><input type="text" id="prod-nome" class="form-control"></div>
+            <div class="form-group"><label>Nome do Produto</label><input type="text" id="prod-nome" class="form-control" required></div>
             <div class="form-group"><label>Categoria</label><input type="text" id="prod-categoria" class="form-control"></div>
-            <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="prod-qtd" class="form-control" min="0"></div>
-            <div class="form-group"><label>Preço de Custo (R$)</label><input type="number" id="prod-custo" class="form-control" step="0.01"></div>
-            <div class="form-group"><label>Preço de Venda (R$)</label><input type="number" id="prod-venda" class="form-control" step="0.01"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="prod-desc" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label>Quantidade em Estoque</label><input type="number" id="prod-qtd" class="form-control" required></div>
+            <div class="form-group"><label>Preço de Custo (R$)</label><input type="number" id="prod-custo" class="form-control" step="0.01" required></div>
+            <div class="form-group"><label>Preço de Venda (R$)</label><input type="number" id="prod-venda" class="form-control" step="0.01" required></div>
             <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-        // CONFIGURAÇÕES DO FIREBASE — INSIRA SUAS CREDENCIAIS AQUI
-        const firebaseConfig = {
-            apiKey: "AIzaSyDuYjmrD92RysvC1JDGORXgXfeMJgQtfVQ",
-            authDomain: "lady-8912c.firebaseapp.com",
-            projectId: "lady-8912c",
-            storageBucket: "lady-8912c.firebasestorage.app",
-            messagingSenderId: "412956732868",
-            appId: "1:412956732868:web:17c03133bc97a97e318891"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+    <script>
+        // ATENÇÃO: Substitua pelo IP do computador servidor se for acessar de outros aparelhos!
+        const API_BASE = "http://localhost:3000/api"; 
 
         let DB = { produtos: [], vendas: [], clientes: [] };
-        let authMode = 'login';
 
-        // Controle de Autenticação
-        function checkUser() {
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    showApp();
-                } else {
-                    showAuth();
-                }
-            });
-        }
-
-        function showAuth() {
-            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-auth').classList.add('active');
-            document.getElementById('main-nav').style.display = 'none';
-        }
-
-        function showApp() {
-            document.getElementById('screen-auth').classList.remove('active');
-            document.getElementById('screen-dashboard').classList.add('active');
-            document.getElementById('main-nav').style.display = 'flex';
-            initRealtimeSync();
-        }
-
-        function switchAuthMode() {
-            const title = document.getElementById('auth-title');
-            const btnMain = document.getElementById('btn-auth-main');
-            const btnSwitch = document.getElementById('btn-auth-switch');
-            const passGroup = document.getElementById('group-password');
-
-            if (authMode === 'login') {
-                authMode = 'cadastro';
-                title.innerHTML = '<i class="fa-solid fa-user-plus"></i> Criar Nova Conta';
-                btnMain.innerText = 'Cadastrar';
-                btnSwitch.innerText = 'Já tem conta? Faça Login';
-                passGroup.style.display = 'block';
-            } else {
-                authMode = 'login';
-                title.innerHTML = '<i class="fa-solid fa-lock"></i> Entrar no Sistema';
-                btnMain.innerText = 'Entrar';
-                btnSwitch.innerText = 'Não tem conta? Cadastre-se';
-                passGroup.style.display = 'block';
-            }
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-
-            if(!email || (authMode !== 'recup' && !password)) {
-                alert('Por favor, preencha todos os campos.');
-                return;
-            }
-
+        async function carregarDados() {
             try {
-                if (authMode === 'login') {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } else if (authMode === 'cadastro') {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    alert('Cadastro realizado com sucesso!');
-                } else if (authMode === 'recup') {
-                    await sendPasswordResetEmail(auth, email);
-                    alert('E-mail de recuperação enviado!');
-                }
-            } catch (error) {
-                alert('Erro na autenticação: ' + error.message);
+                const resP = await fetch(`${API_BASE}/produtos`);
+                DB.produtos = await resP.json();
+                const resV = await fetch(`${API_BASE}/vendas`);
+                DB.vendas = await resV.json();
+                const resC = await fetch(`${API_BASE}/clientes`);
+                DB.clientes = await resC.json();
+                calcularMetricas();
+            } catch (err) {
+                console.error("Erro ao sincronizar com o banco central:", err);
             }
         }
 
-        async function handleResetPassword() {
-            authMode = 'recup';
-            document.getElementById('auth-title').innerHTML = '<i class="fa-solid fa-key"></i> Recuperar Senha';
-            document.getElementById('btn-auth-main').innerText = 'Enviar E-mail de Recuperação';
-            document.getElementById('group-password').style.display = 'none';
-            document.getElementById('btn-auth-switch').innerText = 'Voltar para o Login';
-        }
-
-        async function handleLogout() {
-            await signOut(auth);
-            location.reload();
-        }
-
-        // Sincronização em Tempo Real (Múltiplos Usuários via Firebase Streams)
-        function initRealtimeSync() {
-            const qProdutos = query(collection(db, "lady_produtos"), orderBy("nome"));
-            onSnapshot(qProdutos, (snapshot) => {
-                DB.produtos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateCurrentView();
+        async function sincronizar(entidade) {
+            await fetch(`${API_BASE}/${entidade}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(DB[entidade])
             });
-
-            const qVendas = query(collection(db, "lady_vendas"), orderBy("createdAt", "desc"));
-            onSnapshot(qVendas, (snapshot) => {
-                DB.vendas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateCurrentView();
-            });
-
-            const qClientes = query(collection(db, "lady_clientes"), orderBy("nome"));
-            onSnapshot(qClientes, (snapshot) => {
-                DB.clientes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateCurrentView();
-            });
-        }
-
-        function updateCurrentView() {
             calcularMetricas();
-            if(document.getElementById('screen-estoque').classList.contains('active')) renderEstoque();
-            if(document.getElementById('screen-vendas').classList.contains('active')) preencherSelectsVenda();
-            if(document.getElementById('screen-configuracoes').classList.contains('active')) renderClientes();
+        }
+
+        async function realizarLogin() {
+            const usuario = document.getElementById('login-usuario').value;
+            const senha = document.getElementById('login-senha').value;
+
+            const res = await fetch(`${API_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, senha })
+            });
+            const resultado = await res.json();
+
+            if (resultado.sucesso) {
+                document.getElementById('screen-login').style.display = 'none';
+                document.getElementById('app-main-content').style.display = 'block';
+                document.getElementById('screen-dashboard').classList.add('active');
+                await carregarDados();
+            } else {
+                alert(resultado.mensagem);
+            }
         }
 
         function switchScreen(screenId, element) {
             document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
             document.getElementById(`screen-${screenId}`).classList.add('active');
             element.classList.add('active');
-
-            const listaProd = document.getElementById('lista-produtos');
-            const listaCli = document.getElementById('lista-clientes');
-            const listaVend = document.getElementById('lista-vendas-recentes');
-
-            if (listaProd) listaProd.innerHTML = '';
-            if (listaCli) listaCli.innerHTML = '';
-            if (listaVend) listaVend.innerHTML = '';
-
-            if(screenId === 'estoque') renderEstoque();
-            if(screenId === 'vendas') preencherSelectsVenda();
-            if(screenId === 'configuracoes') renderClientes();
-            if(screenId === 'relatorios') calcularMetricas();
-        }
-
-        async function uploadImagem(file) {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
-            const storageRef = ref(storage, `produtos/${fileName}`);
-            
-            await uploadBytes(storageRef, file);
-            return await getDownloadURL(storageRef);
+            carregarDados().then(() => {
+                if(screenId === 'estoque') renderEstoque();
+                if(screenId === 'vendas') preencherSelectsVenda();
+                if(screenId === 'configuracoes') renderClientes();
+            });
         }
 
         function openProductModal(id = null) {
             document.getElementById('product-modal').style.display = 'flex';
             if(id) {
-                document.getElementById('modal-title').innerText = "Editar Produto";
-                const p = DB.produtos.find(prod => prod.id == id);
+                const p = DB.produtos.find(prod => prod.id === id);
                 document.getElementById('prod-id').value = p.id;
                 document.getElementById('prod-nome').value = p.nome;
                 document.getElementById('prod-categoria').value = p.categoria;
                 document.getElementById('prod-qtd').value = p.qtd;
                 document.getElementById('prod-custo').value = p.custo;
                 document.getElementById('prod-venda').value = p.venda;
-                document.getElementById('prod-desc').value = p.descricao;
             } else {
-                document.getElementById('modal-title').innerText = "Cadastrar Produto";
                 document.getElementById('prod-id').value = '';
                 document.getElementById('prod-nome').value = '';
                 document.getElementById('prod-categoria').value = '';
                 document.getElementById('prod-qtd').value = '';
                 document.getElementById('prod-custo').value = '';
                 document.getElementById('prod-venda').value = '';
-                document.getElementById('prod-desc').value = '';
-                document.getElementById('prod-img').value = '';
             }
         }
 
@@ -556,247 +387,88 @@
             const qtd = parseInt(document.getElementById('prod-qtd').value) || 0;
             const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
             const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
-            const descricao = document.getElementById('prod-desc').value;
-            const imgFile = document.getElementById('prod-img').files[0];
 
-            if(!nome || custo <= 0 || venda <= 0) { alert('Preencha os campos obrigatórios.'); return; }
-
-            try {
-                let imagemUrl = null;
-                if (imgFile) {
-                    imagemUrl = await uploadImagem(imgFile);
-                } else if (id) {
-                    const current = DB.produtos.find(p => p.id == id);
-                    imagemUrl = current ? current.imagem : null;
-                }
-
-                const payload = { nome, categoria, qtd, custo, venda, descricao, imagem: imagemUrl, createdAt: serverTimestamp() };
-
-                if(id) {
-                    await updateDoc(doc(db, "lady_produtos", id), payload);
-                } else {
-                    await addDoc(collection(db, "lady_produtos"), payload);
-                }
-                closeProductModal();
-            } catch (error) {
-                alert("Erro ao salvar produto: " + error.message);
+            if(id) {
+                const index = DB.produtos.findIndex(p => p.id == id);
+                DB.produtos[index] = { id: Number(id), nome, categoria, qtd, custo, venda };
+            } else {
+                DB.produtos.push({ id: Date.now(), nome, categoria, qtd, custo, venda });
             }
-        }
-
-        async function excluirProduto(id) {
-            if(confirm("Deseja excluir este produto?")) { 
-                await deleteDoc(doc(db, "lady_produtos", id));
-            }
+            await sincronizar('produtos');
+            closeProductModal();
+            renderEstoque();
         }
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
-            if (!lista) return;
-            const busca = document.getElementById('search-produto').value.toLowerCase();
             lista.innerHTML = '';
-            const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
-
-            filtrados.forEach(p => {
-                const imgTag = p.imagem ? `<img src="${p.imagem}" class="item-img-thumb">` : `<div class="item-img-thumb"><i class="fa-solid fa-image"></i></div>`;
+            DB.produtos.forEach(p => {
                 lista.innerHTML += `
                     <div class="item-card">
-                        ${imgTag}
+                        <div class="item-img-thumb"><i class="fa-solid fa-box"></i></div>
                         <div class="item-info">
                             <h4>${p.nome}</h4>
-                            <p>Preço: <b>R$ ${p.venda.toFixed(2)}</b> | Estoque: ${p.qtd} un</p>
+                            <p>Preço: R$ ${p.venda.toFixed(2)} | Estoque: ${p.qtd} un</p>
                         </div>
                         <div class="item-actions">
-                            <button class="btn-icon edit" data-id="${p.id}"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn-icon delete" data-id="${p.id}"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
                         </div>
                     </div>`;
             });
-
-            lista.querySelectorAll('.edit').forEach(btn => btn.onclick = () => openProductModal(btn.getAttribute('data-id')));
-            lista.querySelectorAll('.delete').forEach(btn => btn.onclick = () => excluirProduto(btn.getAttribute('data-id')));
         }
 
         async function cadastrarCliente() {
             const nome = document.getElementById('cliente-nome').value;
             const fone = document.getElementById('cliente-fone').value;
-            if(!nome || !fone) return;
-
-            await addDoc(collection(db, "lady_clientes"), { nome, fone, comprasCount: 0, createdAt: serverTimestamp() });
-            document.getElementById('cliente-nome').value = '';
-            document.getElementById('cliente-fone').value = '';
+            DB.clientes.push({ id: Date.now(), nome, fone, comprasCount: 0 });
+            await sincronizar('clientes');
+            renderClientes();
         }
 
         function renderClientes() {
             const lista = document.getElementById('lista-clientes');
-            if (!lista) return;
             lista.innerHTML = '';
             DB.clientes.forEach(c => {
                 lista.innerHTML += `
                     <div class="item-card">
-                        <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
-                        <div class="item-info"><h4>${c.nome}</h4><p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p></div>
+                        <div class="item-info"><h4>${c.nome}</h4><p>Fone: ${c.fone}</p></div>
                     </div>`;
             });
         }
 
         function preencherSelectsVenda() {
-            const prodSelect = document.getElementById('venda-produto-select');
-            const cliSelect = document.getElementById('venda-cliente-select');
-            if(!prodSelect) return;
-            
-            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
-            DB.produtos.forEach(p => { prodSelect.innerHTML += `<option value="${p.id}">${p.nome} - R$ ${p.venda.toFixed(2)}</option>`; });
-            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
-            DB.clientes.forEach(c => { cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`; });
-            renderVendasRecentes();
+            const pSel = document.getElementById('venda-produto-select');
+            pSel.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+            DB.produtos.forEach(p => pSel.innerHTML += `<option value="${p.id}">${p.nome}</option>`);
         }
 
         async function registrarVenda() {
-            const prodId = document.getElementById('venda-produto-select').value;
+            const pId = document.getElementById('venda-produto-select').value;
             const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
-            const pagamento = document.getElementById('venda-pagamento').value;
-            const clienteId = document.getElementById('venda-cliente-select').value;
-            if(!prodId || qtd <= 0) return;
+            const produto = DB.produtos.find(p => p.id == pId);
 
-            const produto = DB.produtos.find(p => p.id == prodId);
-            if(produto.qtd < qtd) { alert('Estoque insuficiente!'); return; }
-
-            try {
-                const novaQtd = produto.qtd - qtd;
-                await updateDoc(doc(db, "lady_produtos", prodId), { qtd: novaQtd });
-                
-                await addDoc(collection(db, "lady_vendas"), {
+            if(produto && produto.qtd >= qtd) {
+                produto.qtd -= qtd;
+                DB.vendas.push({
+                    id: Date.now(),
                     data: new Date().toISOString().split('T')[0],
-                    produtoId: prodId,
                     produtoNome: produto.nome,
-                    qtd,
-                    total: produto.venda * qtd,
-                    lucro: (produto.venda - produto.custo) * qtd,
-                    custo: produto.custo * qtd,
-                    pagamento,
-                    createdAt: serverTimestamp()
+                    qtd, total: produto.venda * qtd, lucro: (produto.venda - produto.custo) * qtd
                 });
-
-                if (clienteId) {
-                    const cliente = DB.clientes.find(c => c.id == clienteId);
-                    const totalCompras = (cliente.comprasCount || 0) + 1;
-                    await updateDoc(doc(db, "lady_clientes", clienteId), { comprasCount: totalCompras });
-                }
-
-                alert('Venda realizada! 🛍️');
-            } catch (error) {
-                alert("Erro ao registrar venda: " + error.message);
-            }
-        }
-
-        function renderVendasRecentes() {
-            const lista = document.getElementById('lista-vendas-recentes');
-            if (!lista) return;
-            lista.innerHTML = '';
-            DB.vendas.slice(0, 5).forEach(v => {
-                lista.innerHTML += `
-                    <div class="item-card" style="border-left: 4px solid var(--success);">
-                        <div class="item-info"><h4>${v.produtoNome} (x${v.qtd})</h4><p>${v.pagamento}</p></div>
-                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${v.total.toFixed(2)}</span></div>
-                    </div>`;
-            });
+                await sincronizar('produtos');
+                await sincronizar('vendas');
+                alert('Venda realizada!');
+                preencherSelectsVenda();
+            } else { alert('Estoque insuficiente!'); }
         }
 
         function calcularMetricas() {
-            const hoje = new Date().toISOString().split('T')[0];
-            let fatDia = 0, fatMes = 0, lucroMes = 0, despesas = 0;
-
-            DB.vendas.forEach(v => {
-                if(v.data === hoje) fatDia += v.total;
-                if(v.data && v.data.substring(0,7) === hoje.substring(0,7)) {
-                    fatMes += v.total; 
-                    lucroMes += v.lucro;
-                }
-            });
-            DB.produtos.forEach(p => { despesas += (p.custo * p.qtd); });
-
-            const dFatMes = document.getElementById('dash-faturamento-mes');
-            if(dFatMes) {
-                dFatMes.innerText = `R$ ${fatMes.toFixed(2)}`;
-                document.getElementById('dash-faturamento-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-                document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-                document.getElementById('dash-total-produtos').innerText = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
-                document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => p.qtd <= 3).length;
-
-                document.getElementById('fin-receita-dia').innerText = `R$ ${fatDia.toFixed(2)}`;
-                document.getElementById('fin-receita-mes').innerText = `R$ ${fatMes.toFixed(2)}`;
-                document.getElementById('fin-despesas').innerText = `R$ ${despesas.toFixed(2)}`;
-                document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            }
-            
-            let contagem = {};
-            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
-            let ord = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
-            const rMais = document.getElementById('rel-mais-vendido');
-            if(rMais && ord.length > 0) {
-                rMais.innerText = `${ord[0]} (${contagem[ord[0]]} un)`;
-                document.getElementById('rel-menos-vendido').innerText = `${ord[ord.length - 1]} (${contagem[ord[ord.length - 1]]} un)`;
-            }
+            let fat = DB.vendas.reduce((acc, v) => acc + v.total, 0);
+            let luc = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
+            document.getElementById('dash-faturamento-mes').innerText = `R$ ${fat.toFixed(2)}`;
+            document.getElementById('dash-lucro-mes').innerText = `R$ ${luc.toFixed(2)}`;
+            document.getElementById('dash-total-produtos').innerText = DB.produtos.length;
         }
-
-        function sendChat() {
-            const input = document.getElementById('chat-input');
-            const texto = input.value.trim(); if(!texto) return;
-            renderBubble(texto, 'user'); input.value = '';
-            setTimeout(() => { processarRespostaIA(texto); }, 400);
-        }
-
-        function askLadyIA(pergunta) {
-            renderBubble(pergunta, 'user');
-            setTimeout(() => { processarRespostaIA(pergunta); }, 400);
-        }
-
-        function renderBubble(texto, side) {
-            const box = document.getElementById('chat-box');
-            if(!box) return;
-            box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function processarRespostaIA(pergunta) {
-            const p = pergunta.toLowerCase();
-            let resposta = "Posso te ajudar com dados de faturamento, estoque ou lucro atuais da Quarteto da Drikka!";
-            let fatTotal = DB.vendas.reduce((acc, v) => acc + v.total, 0);
-            let lucTotal = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
-
-            if (p.includes('faturamento') || p.includes('vendas')) {
-                resposta = `O faturamento acumulado no sistema é de **R$ ${fatTotal.toFixed(2)}**.`;
-            } else if (p.includes('estoque') || p.includes('produtos')) {
-                resposta = `Temos **${DB.produtos.reduce((acc, prod) => acc + prod.qtd, 0)} itens** físicos em estoque.`;
-            } else if (p.includes('lucro')) {
-                resposta = `O lucro total registrado até agora é de **R$ ${lucTotal.toFixed(2)}**.`;
-            }
-            renderBubble(resposta, 'lady');
-        }
-
-        // Globalização de escopo para chamadas em atributos onClick do HTML nativo
-        window.handleAuth = handleAuth;
-        window.switchAuthMode = switchAuthMode;
-        window.handleResetPassword = handleResetPassword;
-        window.handleLogout = handleLogout;
-        window.switchScreen = switchScreen;
-        window.openProductModal = openProductModal;
-        window.closeProductModal = closeProductModal;
-        window.salvarProduto = salvarProduto;
-        window.cadastrarCliente = cadastrarCliente;
-        window.registrarVenda = registrarVenda;
-        window.sendChat = sendChat;
-        window.askLadyIA = askLadyIA;
-        window.renderEstoque = renderEstoque;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            checkUser();
-            const cInput = document.getElementById('chat-input');
-            if(cInput) {
-                cInput.addEventListener('keypress', function(e) { if(e.key === 'Enter') sendChat(); });
-            }
-        });
     </script>
 </body>
 </html>
-

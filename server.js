@@ -1,116 +1,41 @@
 const express = require('express');
-const cors = require('cors');
 const { Pool } = require('pg');
-
+const path = require('path');
 const app = express();
-const PORT = 3000;
 
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+// O Render define a porta automaticamente na variável process.env.PORT. Se não houver, usa a 3000.
+const PORT = process.env.PORT || 3000;
 
-// CONEXÃO COM O POSTGRESQL DO SEU PC
-// Altere 'SUA_SENHA_AQUI' pela senha que você criou na instalação!
+// Configuração da conexão segura com o Supabase
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: 'drika', 
-    port: 5432,
+  connectionString: process.env.https://blazercarft.github.io/Lady/,
+  ssl: {
+    rejectUnauthorized: false // Obrigatório para o Supabase funcionar no Render
+  }
 });
 
-// Criar as tabelas no seu PC automaticamente se não existirem
-async function criarTabelasIniciais() {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS produtos (
-                id SERIAL PRIMARY KEY,
-                nome TEXT NOT EXISTS,
-                categoria TEXT,
-                qtd INT,
-                custo NUMERIC,
-                venda NUMERIC,
-                descricao TEXT,
-                imagem TEXT
-            );
-            CREATE TABLE IF NOT EXISTS vendas (
-                id SERIAL PRIMARY KEY,
-                data TEXT,
-                produtoNome TEXT,
-                produtoId INT,
-                qtd INT,
-                total NUMERIC,
-                lucro NUMERIC,
-                custo NUMERIC,
-                pagamento TEXT
-            );
-            CREATE TABLE IF NOT EXISTS clientes (
-                id SERIAL PRIMARY KEY,
-                nome TEXT,
-                fone TEXT,
-                comprasCount INT DEFAULT 0
-            );
-        `);
-        console.log("💾 Tabelas do PostgreSQL prontas no seu PC!");
-    } catch (err) {
-        console.error("Erro ao criar tabelas no Postgres:", err);
-    }
-}
-criarTabelasIniciais();
+// Middleware para entender JSON e formulários
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// ROTAS DO BANCO DE DADOS
-app.get('/api/produtos', async (req, res) => {
-    const result = await pool.query('SELECT * FROM produtos ORDER BY nome');
-    res.json(result.rows);
+// Servir os arquivos da sua loja (HTML, CSS, JS do site) que estão na pasta principal
+app.use(express.static(path.join(__dirname)));
+
+// Rota principal para carregar a página inicial da loja
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/api/produtos', async (req, res) => {
-    const { nome, categoria, qtd, custo, venda, descricao, imagem } = req.body;
-    const result = await pool.query(
-        'INSERT INTO produtos (nome, categoria, qtd, custo, venda, descricao, imagem) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        [nome, categoria, qtd, custo, venda, descricao, imagem]
-    );
-    res.json({ success: true, produto: result.rows[0] });
+// Teste de conexão com o Banco de Dados ao iniciar o servidor
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('Erro ao conectar ao Supabase:', err.stack);
+  }
+  console.log('Conexão com o Supabase estabelecida com sucesso!');
+  release();
 });
 
-app.put('/api/produtos/:id', async (req, res) => {
-    const id = req.params.id;
-    const { nome, categoria, qtd, custo, venda, descricao, imagem } = req.body;
-    await pool.query(
-        'UPDATE produtos SET nome=$1, categoria=$2, qtd=$3, custo=$4, venda=$5, descricao=$6, imagem=$7 WHERE id=$8',
-        [nome, categoria, qtd, custo, venda, descricao, imagem, id]
-    );
-    res.json({ success: true });
-});
-
-app.delete('/api/produtos/:id', async (req, res) => {
-    await pool.query('DELETE FROM produtos WHERE id = $1', [req.params.id]);
-    res.json({ success: true });
-});
-
-// ROTAS DE VENDAS E CLIENTES
-app.get('/api/vendas', async (req, res) => {
-    const result = await pool.query('SELECT * FROM vendas');
-    res.json(result.rows);
-});
-app.post('/api/vendas', async (req, res) => {
-    const { data, produtoNome, produtoId, qtd, total, lucro, custo, pagamento } = req.body;
-    await pool.query(
-        'INSERT INTO vendas (data, produtoNome, produtoId, qtd, total, lucro, custo, pagamento) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-        [data, produtoNome, produtoId, qtd, total, lucro, custo, pagamento]
-    );
-    res.json({ success: true });
-});
-
-app.get('/api/clientes', async (req, res) => {
-    const result = await pool.query('SELECT * FROM clientes ORDER BY nome');
-    res.json(result.rows);
-});
-app.post('/api/clientes', async (req, res) => {
-    const { nome, fone } = req.body;
-    await pool.query('INSERT INTO clientes (nome, fone) VALUES ($1, $2)', [nome, fone]);
-    res.json({ success: true });
-});
-
+// Inicia o servidor na porta correta
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor conectado ao PostgreSQL em http://localhost:${PORT}`);
+  console.log(`Servidor rodando com sucesso na porta ${PORT}`);
 });

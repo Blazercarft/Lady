@@ -383,17 +383,17 @@
                 <div class="dash-card full-width">
                     <i class="fa-solid fa-money-bill-trend-up text-success"></i>
                     <p>Faturamento do Mês</p>
-                    <h3 id="dash-faturamento-mes">Carregando...</h3>
+                    <h3 id="dash-faturamento-mes">R$ 0,00</h3>
                 </div>
                 <div class="dash-card">
                     <i class="fa-solid fa-calendar-day"></i>
                     <p>Faturamento Dia</p>
-                    <h3 id="dash-faturamento-dia">Carregando...</h3>
+                    <h3 id="dash-faturamento-dia">R$ 0,00</h3>
                 </div>
                 <div class="dash-card">
                     <i class="fa-solid fa-hand-holding-dollar text-success"></i>
                     <p>Lucro do Mês</p>
-                    <h3 id="dash-lucro-mes">Carregando...</h3>
+                    <h3 id="dash-lucro-mes">R$ 0,00</h3>
                 </div>
                 <div class="dash-card">
                     <i class="fa-solid fa-box"></i>
@@ -572,21 +572,27 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SUPABASE (Insere os teus dados aqui!)
+        // CONFIGURAÇÃO DO SUPABASE (Substitua pelas suas chaves mantendo as aspas!)
         const SUPABASE_URL = "https://uuxjtrirdyobdrycnbbl.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_qjOmhdAu3HeUCTgWFDkZKg_GN965_HT";
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        try {
+            if(SUPABASE_URL !== "COLE_AQUI_SUA_URL_DO_SUPABASE") {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch(e) {
+            console.error("Erro ao inicializar Supabase, verifique as credenciais:", e);
+        }
 
-        // Memória local temporária do App (sincronizada com o Supabase)
         let DB = { produtos: [], vendas: [], clientes: [] };
 
-        // Carrega todos os dados do Supabase para a memória da aplicação
         async function fetchAllData() {
+            if(!supabaseClient) return;
             try {
-                const { data: prods } = await supabase.from('produtos').select('*');
-                const { data: vnds } = await supabase.from('vendas').select('*');
-                const { data: clis } = await supabase.from('clientes').select('*');
+                const { data: prods } = await supabaseClient.from('produtos').select('*').order('nome');
+                const { data: vnds } = await supabaseClient.from('vendas').select('*');
+                const { data: clis } = await supabaseClient.from('clientes').select('*').order('nome');
 
                 DB.produtos = prods || [];
                 DB.vendas = vnds || [];
@@ -594,7 +600,7 @@
 
                 calcularMetricas();
             } catch (error) {
-                console.error("Erro ao carregar dados do Supabase:", error);
+                console.error("Erro ao sincronizar dados com o banco:", error);
             }
         }
 
@@ -605,6 +611,7 @@
             document.getElementById(`screen-${screenId}`).classList.add('active');
             element.classList.add('active');
 
+            if(screenId === 'dashboard') calcularMetricas();
             if(screenId === 'estoque') renderEstoque();
             if(screenId === 'vendas') preencherSelectsVenda();
             if(screenId === 'configuracoes') renderClientes();
@@ -621,21 +628,18 @@
             }
         }
 
-        // --- AÇÕES DO ESTOQUE NO SUPABASE ---
         function openProductModal(id = null) {
-            const modal = document.getElementById('product-modal');
-            modal.style.display = 'flex';
-            
+            document.getElementById('product-modal').style.display = 'flex';
             if(id) {
                 document.getElementById('modal-title').innerText = "Editar Produto";
                 const p = DB.produtos.find(prod => prod.id === id);
                 document.getElementById('prod-id').value = p.id;
                 document.getElementById('prod-nome').value = p.nome;
-                document.getElementById('prod-categoria').value = p.categoria;
+                document.getElementById('prod-categoria').value = p.categoria || '';
                 document.getElementById('prod-qtd').value = p.qtd;
                 document.getElementById('prod-custo').value = p.custo;
                 document.getElementById('prod-venda').value = p.venda;
-                document.getElementById('prod-desc').value = p.descricao;
+                document.getElementById('prod-desc').value = p.descricao || '';
                 document.getElementById('prod-img-base64').value = p.imagem || '';
             } else {
                 document.getElementById('modal-title').innerText = "Cadastrar Produto";
@@ -656,6 +660,7 @@
         }
 
         async function salvarProduto() {
+            if(!supabaseClient) return alert('Configure as chaves do Supabase primeiro!');
             const id = document.getElementById('prod-id').value;
             const nome = document.getElementById('prod-nome').value;
             const categoria = document.getElementById('prod-categoria').value;
@@ -666,18 +671,16 @@
             const imagem = document.getElementById('prod-img-base64').value;
 
             if(!nome || qtd < 0 || custo <= 0 || venda <= 0) {
-                alert('Por favor, preencha corretamente os campos obrigatórios.');
+                alert('Preencha os campos obrigatórios.');
                 return;
             }
 
             const payload = { nome, categoria, qtd, custo, venda, descricao, imagem };
 
             if(id) {
-                // UPDATE no Supabase
-                await supabase.from('produtos').update(payload).eq('id', id);
+                await supabaseClient.from('produtos').update(payload).eq('id', id);
             } else {
-                // INSERT no Supabase
-                await supabase.from('produtos').insert([payload]);
+                await supabaseClient.from('produtos').insert([payload]);
             }
 
             closeProductModal();
@@ -686,8 +689,8 @@
         }
 
         async function excluirProduto(id) {
-            if(confirm("Tem certeza que deseja excluir este produto?")) {
-                await supabase.from('produtos').delete().eq('id', id);
+            if(supabaseClient && confirm("Deseja remover este produto?")) {
+                await supabaseClient.from('produtos').delete().eq('id', id);
                 await fetchAllData();
                 renderEstoque();
             }
@@ -699,9 +702,8 @@
             lista.innerHTML = '';
 
             const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
-
             if(filtrados.length === 0) {
-                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum produto encontrado.</p>`;
+                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum produto em estoque.</p>`;
                 return;
             }
 
@@ -714,7 +716,7 @@
                         ${imgTag}
                         <div class="item-info">
                             <h4>${p.nome}</h4>
-                            <p>Cat: ${p.categoria || 'Geral'} | Preço: <b>R$ ${p.venda.toFixed(2)}</b></p>
+                            <p>Cat: ${p.categoria || 'Geral'} | Preço: <b>R$ ${Number(p.venda).toFixed(2)}</b></p>
                             <p ${estoqueAviso}>Estoque: ${p.qtd} un</p>
                         </div>
                         <div class="item-actions">
@@ -726,18 +728,14 @@
             });
         }
 
-        // --- AÇÕES DE CLIENTES NO SUPABASE ---
         async function cadastrarCliente() {
+            if(!supabaseClient) return;
             const nome = document.getElementById('cliente-nome').value;
             const fone = document.getElementById('cliente-fone').value;
 
-            if(!nome || !fone) {
-                alert('Preencha o nome e o telefone do cliente.');
-                return;
-            }
+            if(!nome || !fone) return alert('Insira nome e contato.');
 
-            await supabase.from('clientes').insert([{ nome, fone, comprasCount: 0 }]);
-
+            await supabaseClient.from('clientes').insert([{ nome, fone, comprasCount: 0 }]);
             document.getElementById('cliente-nome').value = '';
             document.getElementById('cliente-fone').value = '';
 
@@ -761,24 +759,23 @@
                         <div class="item-info">
                             <h4>${c.nome}</h4>
                             <p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p>
-                            <p>Compras realizadas: <b>${c.comprasCount || 0}</b></p>
+                            <p>Compras: <b>${c.comprasCount || 0}</b></p>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // --- AÇÕES DE VENDAS NO SUPABASE ---
         function preencherSelectsVenda() {
             const prodSelect = document.getElementById('venda-produto-select');
             const cliSelect = document.getElementById('venda-cliente-select');
 
             prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
             DB.produtos.forEach(p => {
-                prodSelect.innerHTML += `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd}) - R$ ${p.venda.toFixed(2)}</option>`;
+                prodSelect.innerHTML += `<option value="${p.id}">${p.nome} (${p.qtd} un) - R$ ${Number(p.venda).toFixed(2)}</option>`;
             });
 
-            cliSelect.innerHTML = '<option value="">Consumidor Final (Não Identificado)</option>';
+            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
             DB.clientes.forEach(c => {
                 cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
             });
@@ -787,57 +784,41 @@
         }
 
         async function registrarVenda() {
+            if(!supabaseClient) return;
             const prodId = document.getElementById('venda-produto-select').value;
             const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
             const pagamento = document.getElementById('venda-pagamento').value;
             const clienteId = document.getElementById('venda-cliente-select').value;
 
-            if(!prodId || qtd <= 0) {
-                alert('Por favor, selecione um produto válido e quantidade maior que zero.');
-                return;
-            }
+            if(!prodId || qtd <= 0) return alert('Selecione um item e quantidade.');
 
             const produto = DB.produtos.find(p => p.id == prodId);
+            if(produto.qtd < qtd) return alert(`Estoque insuficiente! Apenas ${produto.qtd} un disponíveis.`);
 
-            if(produto.qtd < qtd) {
-                alert(`Estoque insuficiente! Você só tem ${produto.qtd} unidades disponíveis.`);
-                return;
-            }
-
-            // 1. Atualizar estoque do Produto no Supabase
             const novoEstoque = produto.qtd - qtd;
-            await supabase.from('produtos').update({ qtd: novoEstoque }).eq('id', prodId);
+            await supabaseClient.from('produtos').update({ qtd: novoEstoque }).eq('id', prodId);
 
-            // 2. Atualizar contagem de compras do Cliente se aplicável
             if(clienteId) {
                 const cliente = DB.clientes.find(c => c.id == clienteId);
                 if(cliente) {
-                    const totalCompras = (cliente.comprasCount || 0) + 1;
-                    await supabase.from('clientes').update({ comprasCount: totalCompras }).eq('id', clienteId);
+                    await supabaseClient.from('clientes').update({ comprasCount: (cliente.comprasCount || 0) + 1 }).eq('id', clienteId);
                 }
             }
 
-            // 3. Inserir Registro de Venda no Supabase
             const totalVenda = produto.venda * qtd;
             const totalCusto = produto.custo * qtd;
             const lucroVenda = totalVenda - totalCusto;
 
-            const novaVenda = {
+            await supabaseClient.from('vendas').insert([{
                 data: new Date().toISOString().split('T')[0],
                 produtoNome: produto.nome,
                 produtoId: produto.id,
-                qtd,
-                total: totalVenda,
-                lucro: lucroVenda,
-                custo: totalCusto,
-                pagamento
-            };
-
-            await supabase.from('vendas').insert([novaVenda]);
+                qtd, total: totalVenda, lucro: lucroVenda, custo: totalCusto, pagamento
+            }]);
             
             await fetchAllData();
             preencherSelectsVenda();
-            alert('Venda computada com sucesso! 🛍️');
+            alert('Venda registrada com sucesso! 🛍️');
         }
 
         function renderVendasRecentes() {
@@ -845,9 +826,8 @@
             lista.innerHTML = '';
 
             const ultimas = [...DB.vendas].reverse().slice(0, 5);
-
             if(ultimas.length === 0) {
-                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:10px;">Nenhuma venda hoje.</p>`;
+                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:10px;">Nenhuma movimentação hoje.</p>`;
                 return;
             }
 
@@ -856,72 +836,63 @@
                     <div class="item-card" style="border-left: 4px solid var(--success);">
                         <div class="item-info">
                             <h4>${v.produtoNome} (x${v.qtd})</h4>
-                            <p>Método: <b>${v.pagamento}</b> | Data: ${v.data}</p>
+                            <p>Modo: <b>${v.pagamento}</b> | Data: ${v.data}</p>
                         </div>
-                        <div>
-                            <span style="font-weight:700; color:var(--success)">+ R$ ${v.total.toFixed(2)}</span>
-                        </div>
+                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${Number(v.total).toFixed(2)}</span></div>
                     </div>
                 `;
             });
         }
 
-        // --- MÉTRICAS E FINANCEIRO ---
         function calcularMetricas() {
             const hoje = new Date().toISOString().split('T')[0];
-            
-            let faturamentoDia = 0;
-            let faturamentoMes = 0;
-            let lucroMes = 0;
-            let despesasTotais = 0;
+            let faturamentoDia = 0, faturamentoMes = 0, lucroMes = 0, despesasTotais = 0;
 
             DB.vendas.forEach(v => {
-                if(v.data === hoje) faturamentoDia += v.total;
-                faturamentoMes += v.total;
-                lucroMes += v.lucro;
+                const total = Number(v.total) || 0;
+                const lucro = Number(v.lucro) || 0;
+                if(v.data === hoje) faturamentoDia += total;
+                faturamentoMes += total;
+                lucroMes += lucro;
             });
 
-            DB.produtos.forEach(p => {
-                despesasTotais += (p.custo * p.qtd);
-            });
+            DB.produtos.forEach(p => { despesasTotais += ((Number(p.custo) || 0) * (parseInt(p.qtd) || 0)); });
 
-            const totalProdutos = DB.produtos.reduce((acc, p) => acc + p.qtd, 0);
-            const estoqueBaixo = DB.produtos.filter(p => p.qtd <= 3).length;
+            const totalProdutos = DB.produtos.reduce((acc, p) => acc + (parseInt(p.qtd) || 0), 0);
+            const estoqueBaixo = DB.produtos.filter(p => (parseInt(p.qtd) || 0) <= 3).length;
 
-            document.getElementById('dash-faturamento-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
-            document.getElementById('dash-faturamento-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
-            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            document.getElementById('dash-total-produtos').innerText = totalProdutos;
-            document.getElementById('dash-estoque-baixo').innerText = estoqueBaixo;
+            if(document.getElementById('dash-faturamento-mes')) document.getElementById('dash-faturamento-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+            if(document.getElementById('dash-faturamento-dia')) document.getElementById('dash-faturamento-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
+            if(document.getElementById('dash-lucro-mes')) document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            if(document.getElementById('dash-total-produtos')) document.getElementById('dash-total-produtos').innerText = totalProdutos;
+            if(document.getElementById('dash-estoque-baixo')) document.getElementById('dash-estoque-baixo').innerText = estoqueBaixo;
 
-            document.getElementById('fin-receita-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
-            document.getElementById('fin-receita-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
-            document.getElementById('fin-despesas').innerText = `R$ ${despesasTotais.toFixed(2)}`;
-            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            if(document.getElementById('fin-receita-dia')) document.getElementById('fin-receita-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
+            if(document.getElementById('fin-receita-mes')) document.getElementById('fin-receita-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+            if(document.getElementById('fin-despesas')) document.getElementById('fin-despesas').innerText = `R$ ${despesasTotais.toFixed(2)}`;
+            if(document.getElementById('fin-lucro')) document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
 
             calcularRankProdutos();
         }
 
         function calcularRankProdutos() {
             let contagem = {};
-            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
+            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + (parseInt(v.qtd) || 0); });
             let ordenados = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
 
             if(ordenados.length > 0) {
-                document.getElementById('rel-mais-vendido').innerText = `${ordenados[0]} (${contagem[ordenados[0]]} un)`;
-                document.getElementById('rel-menos-vendido').innerText = `${ordenados[ordenados.length - 1]} (${contagem[ordenados[ordenados.length - 1]]} un)`;
+                if(document.getElementById('rel-mais-vendido')) document.getElementById('rel-mais-vendido').innerText = `${ordenados[0]} (${contagem[ordenados[0]]} un)`;
+                if(document.getElementById('rel-menos-vendido')) document.getElementById('rel-menos-vendido').innerText = `${ordenados[ordenados.length - 1]} (${contagem[ordenados[ordenados.length - 1]]} un)`;
             } else {
-                document.getElementById('rel-mais-vendido').innerText = "Nenhuma venda registrada.";
-                document.getElementById('rel-menos-vendido').innerText = "Nenhuma venda registrada.";
+                if(document.getElementById('rel-mais-vendido')) document.getElementById('rel-mais-vendido').innerText = "Nenhuma venda.";
+                if(document.getElementById('rel-menos-vendido')) document.getElementById('rel-menos-vendido').innerText = "Nenhuma venda.";
             }
         }
 
-        // --- LADY IA CHAT ---
         function sendChat() {
             const input = document.getElementById('chat-input');
             const texto = input.value.trim();
             if(!texto) return;
-
             renderBubble(texto, 'user');
             input.value = '';
             setTimeout(() => { processarRespostaIA(texto); }, 400);
@@ -934,47 +905,38 @@
 
         function renderBubble(texto, side) {
             const box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
-            box.scrollTop = box.scrollHeight;
+            if(box) {
+                box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }
         }
 
         function processarRespostaIA(pergunta) {
             const p = pergunta.toLowerCase();
-            let resposta = "Desculpe, ainda estou aprendendo sobre esse assunto. Você pode me perguntar sobre: Faturamento, Estoque, Lucro ou Mais vendidos!";
+            let resposta = "Ainda estou a processar as informações. Podes perguntar-me sobre: Faturamento, Estoque, Lucro ou Mais vendidos!";
 
-            let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + v.total, 0);
-            let lucroTotal = DB.vendas.reduce((acc, v) => acc + v.lucro, 0);
-            let totalQtdEstoque = DB.produtos.reduce((acc, prod) => acc + prod.qtd, 0);
-            let totalTipos = DB.produtos.length;
+            let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
+            let lucroTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.lucro) || 0), 0);
+            let totalQtdEstoque = DB.produtos.reduce((acc, prod) => acc + (parseInt(prod.qtd) || 0), 0);
 
-            if (p.includes('faturamento') || p.includes('vendeu') || p.includes('vendas')) {
-                resposta = `Até o momento, o faturamento total registado no sistema da Quarteto da Drikka é de **R$ ${faturamentoTotal.toFixed(2)}**.`;
-            } else if (p.includes('estoque') || p.includes('produtos') || p.includes('quantidade')) {
-                let baixo = DB.produtos.filter(prod => prod.qtd <= 3).map(prod => prod.nome).join(', ');
-                resposta = `Atualmente temos **${totalTipos} modelos** cadastrados, somando **${totalQtdEstoque} itens** no estoque.`;
-                if(baixo) resposta += ` __Atenção:__ Os itens (${baixo}) estão abaixo de 3 unidades.`;
-            } else if (p.includes('lucro') || p.includes('ganho') || p.includes('líquido')) {
-                resposta = `Analisando as margens de custo e venda, o seu lucro líquido acumulado é de **R$ ${lucroTotal.toFixed(2)}**.`;
-            } else if (p.includes('mais vendido') || p.includes('saida') || p.includes('campeao')) {
-                let contagem = {};
-                DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + v.qtd; });
-                let ordenados = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
-                if(ordenados.length > 0) {
-                    resposta = `O mais vendido na Quarteto da Drikka é o **${ordenados[0]}**, com ${contagem[ordenados[0]]} unidades vendidas! 👑`;
-                } else {
-                    resposta = `Ainda não temos histórico de vendas registado.`;
-                }
+            if (p.includes('faturamento') || p.includes('vendeu')) {
+                resposta = `O faturamento bruto atual é de **R$ ${faturamentoTotal.toFixed(2)}**.`;
+            } else if (p.includes('estoque') || p.includes('produtos')) {
+                resposta = `Registamos um volume total de **${totalQtdEstoque} peças** no estoque.`;
+            } else if (p.includes('lucro')) {
+                resposta = `O rendimento líquido estimado é de **R$ ${lucroTotal.toFixed(2)}**.`;
             }
             renderBubble(resposta, 'lady');
         }
 
-        // Inicialização do App conectando ao Banco de Dados
         window.onload = async () => {
             await fetchAllData();
-            
-            document.getElementById('chat-input').addEventListener('keypress', function(e) {
-                if(e.key === 'Enter') sendChat();
-            });
+            const chatIn = document.getElementById('chat-input');
+            if(chatIn) {
+                chatIn.addEventListener('keypress', function(e) {
+                    if(e.key === 'Enter') sendChat();
+                });
+            }
         };
     </script>
 </body>

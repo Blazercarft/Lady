@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // Configuração segura do banco de dados
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:Rtq7u7tq#Mateus@db.uuxjtrirdyobdrycnbbl.supabase.co:5432/postgres',
+  connectionString: process.env. || 'postgrhttps://uuxjtrirdyobdrycnbbl.supabase.coes://postgres:Rtq7u7tq#Mateus@db.uuxjtrirdyobdrycnbbl.supabase.co:5432/postgres',
   ssl: {
     rejectUnauthorized: false
   }

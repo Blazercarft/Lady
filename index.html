@@ -572,7 +572,7 @@
     </div>
 
     <script>
-        // CONFIGURAÇÃO DO SUPABASE (Substitua pelas suas chaves mantendo as aspas!)
+        // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = "https://uuxjtrirdyobdrycnbbl.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_qjOmhdAu3HeUCTgWFDkZKg_GN965_HT";
         
@@ -858,7 +858,8 @@
 
             DB.produtos.forEach(p => { despesasTotais += ((Number(p.custo) || 0) * (parseInt(p.qtd) || 0)); });
 
-            const totalProdutos = DB.produtos.reduce((acc, p) => acc + (parseInt(p.qtd) || 0), 0);
+            // ⚠️ ALTERADO AQUI: Agora conta a quantidade total de PRODUTOS CADASTRADOS
+            const totalProdutos = DB.produtos.length;
             const estoqueBaixo = DB.produtos.filter(p => (parseInt(p.qtd) || 0) <= 3).length;
 
             if(document.getElementById('dash-faturamento-mes')) document.getElementById('dash-faturamento-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
@@ -917,12 +918,14 @@
 
             let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
             let lucroTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.lucro) || 0), 0);
-            let totalQtdEstoque = DB.produtos.reduce((acc, prod) => acc + (parseInt(prod.qtd) || 0), 0);
+            
+            // ⚠️ ALTERADO AQUI TAMBÉM: Mostra a quantidade de produtos cadastrados
+            let totalTiposProdutos = DB.produtos.length;
 
             if (p.includes('faturamento') || p.includes('vendeu')) {
                 resposta = `O faturamento bruto atual é de **R$ ${faturamentoTotal.toFixed(2)}**.`;
             } else if (p.includes('estoque') || p.includes('produtos')) {
-                resposta = `Registamos um volume total de **${totalQtdEstoque} peças** no estoque.`;
+                resposta = `Temos **${totalTiposProdutos} produtos cadastrados** no sistema.`;
             } else if (p.includes('lucro')) {
                 resposta = `O rendimento líquido estimado é de **R$ ${lucroTotal.toFixed(2)}**.`;
             }
@@ -941,3 +944,4 @@
     </script>
 </body>
 </html>
+

@@ -57,6 +57,42 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.05);
         }
 
+        /* ESTILO DA TELA DE LOGIN */
+        #screen-login {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--white), var(--purple-bg));
+        }
+
+        .login-card {
+            width: 100%;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid rgba(200, 162, 255, 0.4);
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--purple-main);
+            margin-bottom: 5px;
+        }
+
+        .login-sub {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         header {
             background: linear-gradient(135deg, var(--purple-main), #5B11A6);
             color: var(--white);
@@ -86,6 +122,19 @@
             margin-top: 2px;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .btn-logout {
+            position: absolute;
+            right: 15px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
         }
 
         .app-screen {
@@ -177,7 +226,7 @@
 
         .btn-primary:active { transform: scale(0.98); }
 
-        .form-group { margin-bottom: 12px; }
+        .form-group { margin-bottom: 12px; text-align: left; }
         .form-group label {
             display: block;
             font-size: 12px;
@@ -309,7 +358,7 @@
             width: 100%;
             max-width: 480px;
             background: var(--white);
-            display: flex;
+            display: none; /* Inicia oculto até fazer o login */
             justify-content: space-around;
             padding: 10px 0;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
@@ -372,12 +421,39 @@
 <body>
 
     <div class="app-container">
-        <header>
+
+        <!-- TELA DE LOGIN -->
+        <section id="screen-login">
+            <div class="login-card">
+                <div class="login-logo">LADY 💜</div>
+                <div class="login-sub">Quarteto da Drikka</div>
+                
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="seu@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="••••••••">
+                </div>
+
+                <p id="login-error" style="color: var(--danger); font-size: 12px; margin-bottom: 10px; display: none;"></p>
+
+                <button class="btn-primary mt-3" onclick="realizarLogin()">
+                    <i class="fa-solid fa-right-to-bracket"></i> Entrar no Sistema
+                </button>
+            </div>
+        </section>
+
+        <!-- HEADER DA APLICAÇÃO -->
+        <header id="main-header" style="display: none;">
             <h1>LADY <span>💜</span></h1>
             <p>A inteligência da sua loja</p>
+            <button class="btn-logout" onclick="realizarLogout()"><i class="fa-solid fa-power-off"></i> Sair</button>
         </header>
 
-        <section id="screen-dashboard" class="app-screen active">
+        <section id="screen-dashboard" class="app-screen">
             <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
             <div class="dash-grid">
                 <div class="dash-card full-width">
@@ -512,7 +588,7 @@
             <div class="list-container" id="lista-clientes"></div>
         </section>
 
-        <nav class="nav-bottom">
+        <nav class="nav-bottom" id="main-nav">
             <button class="nav-item active" onclick="switchScreen('dashboard', this)">
                 <i class="fa-solid fa-house"></i> Dashboard
             </button>
@@ -582,10 +658,66 @@
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             }
         } catch(e) {
-            console.error("Erro ao inicializar Supabase, verifique as credenciais:", e);
+            console.error("Erro ao inicializar Supabase:", e);
         }
 
         let DB = { produtos: [], vendas: [], clientes: [] };
+
+        // AUTENTICAÇÃO COM SUPABASE
+        async function realizarLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            errorMsg.style.display = 'none';
+
+            if(!email || !password) {
+                errorMsg.innerText = "Por favor, preencha todos os campos.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    errorMsg.innerText = "E-mail ou senha incorretos.";
+                    errorMsg.style.display = 'block';
+                } else {
+                    iniciarAplicacao();
+                }
+            } catch (e) {
+                errorMsg.innerText = "Erro ao conectar com o banco de dados.";
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        async function realizarLogout() {
+            if(supabaseClient) await supabaseClient.auth.signOut();
+            document.getElementById('screen-login').style.display = 'flex';
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('main-nav').style.display = 'none';
+            document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+        }
+
+        async function verificarSessao() {
+            if(!supabaseClient) return;
+            const { data } = await supabaseClient.auth.getSession();
+            if (data.session) {
+                iniciarAplicacao();
+            }
+        }
+
+        async function iniciarAplicacao() {
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('main-header').style.display = 'block';
+            document.getElementById('main-nav').style.display = 'flex';
+            switchScreen('dashboard', document.querySelector('.nav-item'));
+            await fetchAllData();
+        }
 
         async function fetchAllData() {
             if(!supabaseClient) return;
@@ -609,7 +741,7 @@
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             
             document.getElementById(`screen-${screenId}`).classList.add('active');
-            element.classList.add('active');
+            if(element) element.classList.add('active');
 
             if(screenId === 'dashboard') calcularMetricas();
             if(screenId === 'estoque') renderEstoque();
@@ -858,7 +990,6 @@
 
             DB.produtos.forEach(p => { despesasTotais += ((Number(p.custo) || 0) * (parseInt(p.qtd) || 0)); });
 
-            // ⚠️ ALTERADO AQUI: Agora conta a quantidade total de PRODUTOS CADASTRADOS
             const totalProdutos = DB.produtos.length;
             const estoqueBaixo = DB.produtos.filter(p => (parseInt(p.qtd) || 0) <= 3).length;
 
@@ -918,8 +1049,6 @@
 
             let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
             let lucroTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.lucro) || 0), 0);
-            
-            // ⚠️ ALTERADO AQUI TAMBÉM: Mostra a quantidade de produtos cadastrados
             let totalTiposProdutos = DB.produtos.length;
 
             if (p.includes('faturamento') || p.includes('vendeu')) {
@@ -933,7 +1062,7 @@
         }
 
         window.onload = async () => {
-            await fetchAllData();
+            await verificarSessao();
             const chatIn = document.getElementById('chat-input');
             if(chatIn) {
                 chatIn.addEventListener('keypress', function(e) {
@@ -944,4 +1073,3 @@
     </script>
 </body>
 </html>
-

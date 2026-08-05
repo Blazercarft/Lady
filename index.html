@@ -607,21 +607,31 @@
         let DB = { produtos: [], vendas: [], clientes: [] };
         let novosPedidosCount = 0;
 
-        // SISTEMA EM TEMPO REAL (ESCUTA NOVOS PEDIDOS DO CATÁLOGO)
-        function escutarNovosPedidos() {
-            supabaseClient
-                .channel('pedidos-em-tempo-real')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vendas' }, payload => {
-                    const novaVenda = payload.new;
-                    if (novaVenda.pagamento && novaVenda.pagamento.includes('Catálogo')) {
-                        novosPedidosCount++;
-                        atualizarBadgePedidos();
-                        tocarSomNotificacao();
-                        fetchAllData();
-                    }
-                })
-                .subscribe();
-        }
+        // SISTEMA EM TEMPO REAL CORRIGIDO
+function escutarNovosPedidos() {
+    supabaseClient
+        .channel('pedidos-em-tempo-real')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vendas' }, async (payload) => {
+            const novaVenda = payload.new;
+            
+            // 1. Atualiza os dados locais imediatamente com a nova venda
+            DB.vendas.unshift(novaVenda);
+            
+            // 2. Incrementa o contador da notificação
+            novosPedidosCount++;
+            atualizarBadgePedidos();
+            tocarSomNotificacao();
+            
+            // 3. Atualiza as telas do app na hora
+            calcularMetricas();
+            renderPedidosCatalogo();
+            
+            // 4. Garante sincronização completa com o banco
+            await fetchAllData();
+        })
+        .subscribe();
+}
+
 
         function tocarSomNotificacao() {
             try {

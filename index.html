@@ -161,7 +161,7 @@
 
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, 11fr);
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -265,7 +265,6 @@
             padding: 12px;
             border-radius: var(--radius-main);
             gap: 12px;
-            position: relative;
         }
 
         .item-img-thumb {
@@ -296,6 +295,61 @@
         .btn-icon.edit { color: var(--purple-main); }
         .btn-icon.delete { color: var(--danger); }
 
+        .chat-container {
+            background: var(--gray-light);
+            border-radius: var(--radius-main);
+            height: 250px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.lady {
+            background: linear-gradient(135deg, var(--purple-main), #7315CA);
+            color: white;
+            align-self: flex-start;
+            border-top-left-radius: 4px;
+        }
+
+        .chat-bubble.user {
+            background: var(--purple-light);
+            color: var(--dark);
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+
+        .chat-suggestions {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-tag {
+            background: var(--white);
+            border: 1px solid var(--purple-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            white-space: nowrap;
+            cursor: pointer;
+            color: var(--purple-main);
+            font-weight: 500;
+        }
+
         nav.nav-bottom {
             position: fixed;
             bottom: 0;
@@ -304,7 +358,7 @@
             width: 100%;
             max-width: 480px;
             background: var(--white);
-            display: none;
+            display: none; /* Inicia oculto até fazer o login */
             justify-content: space-around;
             padding: 10px 0;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
@@ -320,36 +374,14 @@
             background: none;
             border: none;
             color: var(--gray-text);
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 500;
             cursor: pointer;
-            width: 16%;
-            position: relative;
+            width: 20%;
         }
 
-        .nav-item i { font-size: 18px; margin-bottom: 3px; }
+        .nav-item i { font-size: 20px; margin-bottom: 3px; }
         .nav-item.active { color: var(--purple-main); }
-
-        /* BADGE DE NOTIFICAÇÃO DE PEDIDO */
-        .badge-notify {
-            position: absolute;
-            top: -2px;
-            right: 12px;
-            background: var(--danger);
-            color: white;
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 10px;
-            display: none;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
 
         .modal {
             display: none;
@@ -421,7 +453,6 @@
             <button class="btn-logout" onclick="realizarLogout()"><i class="fa-solid fa-power-off"></i> Sair</button>
         </header>
 
-        <!-- DASHBOARD -->
         <section id="screen-dashboard" class="app-screen">
             <h2><i class="fa-solid fa-chart-pie"></i> Resumo do Dia</h2>
             <div class="dash-grid">
@@ -451,9 +482,25 @@
                     <h3 id="dash-estoque-baixo" class="text-danger">0</h3>
                 </div>
             </div>
+
+            <hr style="border: 0; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+
+            <h2><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--purple-main);"></i> Lady IA Assistant</h2>
+            <div class="chat-suggestions">
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o faturamento total?')">Qual o faturamento?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Como está o estoque?')">Como está o estoque?</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Quais os produtos mais vendidos?')">Mais vendidos</div>
+                <div class="suggestion-tag" onclick="askLadyIA('Qual o nosso lucro?')">Qual o lucro?</div>
+            </div>
+            <div class="chat-container" id="chat-box">
+                <div class="chat-bubble lady">Olá! Sou a Lady, assistente inteligente da Quarteto da Drikka. Como posso te ajudar na gestão hoje? ✨</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chat-input" class="form-control" placeholder="Pergunte sobre estoque, vendas ou lucro...">
+                <button class="btn-primary" style="width: auto; padding: 12px 15px;" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
         </section>
 
-        <!-- ESTOQUE -->
         <section id="screen-estoque" class="app-screen">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2><i class="fa-solid fa-boxes-stacked"></i> Gerenciamento de Estoque</h2>
@@ -463,9 +510,8 @@
             <div class="list-container" id="lista-produtos"></div>
         </section>
 
-        <!-- VENDAS -->
         <section id="screen-vendas" class="app-screen">
-            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda Manual</h2>
+            <h2><i class="fa-solid fa-basket-shopping"></i> Registrar Venda</h2>
             <div class="form-group">
                 <label>Selecionar Produto</label>
                 <select id="venda-produto-select" class="form-control"></select>
@@ -483,13 +529,16 @@
                     <option value="Crédito">Crédito</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Vincular a um Cliente (Opcional)</label>
+                <select id="venda-cliente-select" class="form-control"></select>
+            </div>
             <button class="btn-primary mt-3" onclick="registrarVenda()"><i class="fa-solid fa-check"></i> Concluir Venda</button>
 
             <h3 class="mt-3" style="font-size: 14px; color: var(--gray-text);">Últimas Vendas Realizadas</h3>
             <div class="list-container" id="lista-vendas-recentes"></div>
         </section>
 
-        <!-- RELATÓRIOS -->
         <section id="screen-relatorios" class="app-screen">
             <h2><i class="fa-solid fa-chart-line"></i> Financeiro Integrado</h2>
             <div class="dash-grid">
@@ -510,16 +559,18 @@
                     <h3 id="fin-lucro" style="color: var(--purple-main)">R$ 0,00</h3>
                 </div>
             </div>
+
+            <h2><i class="fa-solid fa-file-invoice-dollar"></i> Desempenho de Produtos</h2>
+            <div class="dash-card full-width mb-3">
+                <p>⭐ Produto Mais Vendido</p>
+                <h4 id="rel-mais-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
+            <div class="dash-card full-width mb-3">
+                <p>⚠️ Menor Saída / Encalhado</p>
+                <h4 id="rel-menos-vendido" style="margin-top:5px; font-size:15px;">Nenhum registrado</h4>
+            </div>
         </section>
 
-        <!-- ABA PEDIDOS (RECEBIDOS VIA CATÁLOGO) -->
-        <section id="screen-pedidos" class="app-screen">
-            <h2><i class="fa-solid fa-bell" style="color: var(--purple-main);"></i> Pedidos do Catálogo</h2>
-            <p style="font-size: 12px; color: var(--gray-text); margin-bottom: 15px;">Acompanhe em tempo real os pedidos feitos pelos seus clientes no catálogo.</p>
-            <div class="list-container" id="lista-pedidos-catalogo"></div>
-        </section>
-
-        <!-- CONFIGURAÇÕES E CLIENTES -->
         <section id="screen-configuracoes" class="app-screen">
             <h2><i class="fa-solid fa-users"></i> Gerenciamento de Clientes</h2>
             <div style="background: var(--gray-light); padding: 15px; border-radius: var(--radius-main); margin-bottom: 20px;">
@@ -537,10 +588,9 @@
             <div class="list-container" id="lista-clientes"></div>
         </section>
 
-        <!-- MENU INFERIOR DE NAVEGAÇÃO -->
         <nav class="nav-bottom" id="main-nav">
             <button class="nav-item active" onclick="switchScreen('dashboard', this)">
-                <i class="fa-solid fa-house"></i> Dash
+                <i class="fa-solid fa-house"></i> Dashboard
             </button>
             <button class="nav-item" onclick="switchScreen('estoque', this)">
                 <i class="fa-solid fa-box-open"></i> Estoque
@@ -549,11 +599,7 @@
                 <i class="fa-solid fa-cart-shopping"></i> Vendas
             </button>
             <button class="nav-item" onclick="switchScreen('relatorios', this)">
-                <i class="fa-solid fa-chart-simple"></i> Relat
-            </button>
-            <button class="nav-item" onclick="switchScreen('pedidos', this)">
-                <span class="badge-notify" id="pedidos-badge">0</span>
-                <i class="fa-solid fa-bell"></i> Pedidos
+                <i class="fa-solid fa-chart-simple"></i> Relatórios
             </button>
             <button class="nav-item" onclick="switchScreen('configuracoes', this)">
                 <i class="fa-solid fa-gear"></i> Config
@@ -561,7 +607,6 @@
         </nav>
     </div>
 
-    <!-- MODAL DE PRODUTO -->
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -594,92 +639,31 @@
                 <label>Preço de Venda (R$)</label>
                 <input type="number" id="prod-venda" class="form-control" step="0.01" required>
             </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="prod-desc" class="form-control" rows="2"></textarea>
+            </div>
             <button class="btn-primary mt-3" onclick="salvarProduto()">Salvar Alterações</button>
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÃO DO SUPABASE
         const SUPABASE_URL = "https://uuxjtrirdyobdrycnbbl.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_qjOmhdAu3HeUCTgWFDkZKg_GN965_HT";
         
-        let supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        try {
+            if(SUPABASE_URL !== "COLE_AQUI_SUA_URL_DO_SUPABASE") {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch(e) {
+            console.error("Erro ao inicializar Supabase:", e);
+        }
+
         let DB = { produtos: [], vendas: [], clientes: [] };
-        let novosPedidosCount = 0;
 
-        // ESCUTA EM TEMPO REAL CORRIGIDA
-function escutarNovosPedidos() {
-    supabaseClient
-        .channel('canal-pedidos-geral')
-        .on(
-            'postgres_changes',
-            { event: 'INSERT', schema: 'public', table: 'vendas' },
-            async (payload) => {
-                console.log("🔥 Novo pedido recebido via Realtime:", payload);
-
-                // Incrementa contador e toca o aviso
-                novosPedidosCount++;
-                atualizarBadgePedidos();
-                tocarSomNotificacao();
-                
-                // Exibe alerta roxo no topo da tela
-                mostrarAvisoNaTela("🛍️ NOVO PEDIDO RECEBIDO!");
-                
-                // Recarrega os dados e atualiza a lista na hora
-                await fetchAllData();
-                renderPedidosCatalogo();
-            }
-        )
-        .subscribe((status) => {
-            console.log("Status da conexão em tempo real:", status);
-        });
-}
-
-// Banner de aviso visual na tela
-function mostrarAvisoNaTela(texto) {
-    const aviso = document.createElement('div');
-    aviso.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #8A2BE2;
-        color: white;
-        padding: 14px 24px;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 14px;
-        box-shadow: 0 8px 20px rgba(138,43,226,0.4);
-        z-index: 99999;
-    `;
-    aviso.innerText = texto;
-    document.body.appendChild(aviso);
-
-    setTimeout(() => { aviso.remove(); }, 4000);
-}
-
-
-        function tocarSomNotificacao() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-                osc.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
-            } catch(e) {}
-        }
-
-        function atualizarBadgePedidos() {
-            const badge = document.getElementById('pedidos-badge');
-            if (novosPedidosCount > 0) {
-                badge.innerText = novosPedidosCount;
-                badge.style.display = 'block';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
+        // AUTENTICAÇÃO COM SUPABASE
         async function realizarLogin() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
@@ -687,8 +671,18 @@ function mostrarAvisoNaTela(texto) {
 
             errorMsg.style.display = 'none';
 
+            if(!email || !password) {
+                errorMsg.innerText = "Por favor, preencha todos os campos.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
                 if (error) {
                     errorMsg.innerText = "E-mail ou senha incorretos.";
                     errorMsg.style.display = 'block';
@@ -696,13 +690,13 @@ function mostrarAvisoNaTela(texto) {
                     iniciarAplicacao();
                 }
             } catch (e) {
-                errorMsg.innerText = "Erro ao conectar.";
+                errorMsg.innerText = "Erro ao conectar com o banco de dados.";
                 errorMsg.style.display = 'block';
             }
         }
 
         async function realizarLogout() {
-            await supabaseClient.auth.signOut();
+            if(supabaseClient) await supabaseClient.auth.signOut();
             document.getElementById('screen-login').style.display = 'flex';
             document.getElementById('main-header').style.display = 'none';
             document.getElementById('main-nav').style.display = 'none';
@@ -710,8 +704,11 @@ function mostrarAvisoNaTela(texto) {
         }
 
         async function verificarSessao() {
+            if(!supabaseClient) return;
             const { data } = await supabaseClient.auth.getSession();
-            if (data.session) iniciarAplicacao();
+            if (data.session) {
+                iniciarAplicacao();
+            }
         }
 
         async function iniciarAplicacao() {
@@ -720,13 +717,13 @@ function mostrarAvisoNaTela(texto) {
             document.getElementById('main-nav').style.display = 'flex';
             switchScreen('dashboard', document.querySelector('.nav-item'));
             await fetchAllData();
-            escutarNovosPedidos();
         }
 
         async function fetchAllData() {
+            if(!supabaseClient) return;
             try {
                 const { data: prods } = await supabaseClient.from('produtos').select('*').order('nome');
-                const { data: vnds } = await supabaseClient.from('vendas').select('*').order('created_at', { ascending: false });
+                const { data: vnds } = await supabaseClient.from('vendas').select('*');
                 const { data: clis } = await supabaseClient.from('clientes').select('*').order('nome');
 
                 DB.produtos = prods || [];
@@ -734,10 +731,8 @@ function mostrarAvisoNaTela(texto) {
                 DB.clientes = clis || [];
 
                 calcularMetricas();
-                renderPedidosCatalogo();
-                renderEstoque();
             } catch (error) {
-                console.error("Erro ao sincronizar dados:", error);
+                console.error("Erro ao sincronizar dados com o banco:", error);
             }
         }
 
@@ -751,52 +746,96 @@ function mostrarAvisoNaTela(texto) {
             if(screenId === 'dashboard') calcularMetricas();
             if(screenId === 'estoque') renderEstoque();
             if(screenId === 'vendas') preencherSelectsVenda();
-            if(screenId === 'pedidos') {
-                novosPedidosCount = 0;
-                atualizarBadgePedidos();
-                renderPedidosCatalogo();
-            }
             if(screenId === 'configuracoes') renderClientes();
             if(screenId === 'relatorios') calcularMetricas();
         }
 
-        function renderPedidosCatalogo() {
-            const lista = document.getElementById('lista-pedidos-catalogo');
-            lista.innerHTML = '';
+        function triggerImageBase64(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('prod-img-base64').value = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 
-            const pedidosCatalogo = DB.vendas.filter(v => v.pagamento && v.pagamento.includes('Catálogo'));
+        function openProductModal(id = null) {
+            document.getElementById('product-modal').style.display = 'flex';
+            if(id) {
+                document.getElementById('modal-title').innerText = "Editar Produto";
+                const p = DB.produtos.find(prod => prod.id === id);
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-nome').value = p.nome;
+                document.getElementById('prod-categoria').value = p.categoria || '';
+                document.getElementById('prod-qtd').value = p.qtd;
+                document.getElementById('prod-custo').value = p.custo;
+                document.getElementById('prod-venda').value = p.venda;
+                document.getElementById('prod-desc').value = p.descricao || '';
+                document.getElementById('prod-img-base64').value = p.imagem || '';
+            } else {
+                document.getElementById('modal-title').innerText = "Cadastrar Produto";
+                document.getElementById('prod-id').value = '';
+                document.getElementById('prod-nome').value = '';
+                document.getElementById('prod-categoria').value = '';
+                document.getElementById('prod-qtd').value = '';
+                document.getElementById('prod-custo').value = '';
+                document.getElementById('prod-venda').value = '';
+                document.getElementById('prod-desc').value = '';
+                document.getElementById('prod-img-base64').value = '';
+                document.getElementById('prod-img').value = '';
+            }
+        }
 
-            if (pedidosCatalogo.length === 0) {
-                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum pedido feito pelo catálogo ainda.</p>`;
+        function closeProductModal() {
+            document.getElementById('product-modal').style.display = 'none';
+        }
+
+        async function salvarProduto() {
+            if(!supabaseClient) return alert('Configure as chaves do Supabase primeiro!');
+            const id = document.getElementById('prod-id').value;
+            const nome = document.getElementById('prod-nome').value;
+            const categoria = document.getElementById('prod-categoria').value;
+            const qtd = parseInt(document.getElementById('prod-qtd').value) || 0;
+            const custo = parseFloat(document.getElementById('prod-custo').value) || 0;
+            const venda = parseFloat(document.getElementById('prod-venda').value) || 0;
+            const descricao = document.getElementById('prod-desc').value;
+            const imagem = document.getElementById('prod-img-base64').value;
+
+            if(!nome || qtd < 0 || custo <= 0 || venda <= 0) {
+                alert('Preencha os campos obrigatórios.');
                 return;
             }
 
-            pedidosCatalogo.forEach(p => {
-                lista.innerHTML += `
-                    <div class="item-card" style="border-left: 5px solid var(--purple-main);">
-                        <div class="item-img-thumb"><i class="fa-solid fa-bag-shopping"></i></div>
-                        <div class="item-info">
-                            <h4>${p.produtoNome} (x${p.qtd})</h4>
-                            <p><b>Cliente/Origem:</b> ${p.pagamento}</p>
-                            <p><b>Data:</b> ${p.data}</p>
-                        </div>
-                        <div>
-                            <span style="font-weight:700; color:var(--purple-main); font-size:14px;">R$ ${Number(p.total).toFixed(2)}</span>
-                        </div>
-                    </div>
-                `;
-            });
+            const payload = { nome, categoria, qtd, custo, venda, descricao, imagem };
+
+            if(id) {
+                await supabaseClient.from('produtos').update(payload).eq('id', id);
+            } else {
+                await supabaseClient.from('produtos').insert([payload]);
+            }
+
+            closeProductModal();
+            await fetchAllData();
+            renderEstoque();
+        }
+
+        async function excluirProduto(id) {
+            if(supabaseClient && confirm("Deseja remover este produto?")) {
+                await supabaseClient.from('produtos').delete().eq('id', id);
+                await fetchAllData();
+                renderEstoque();
+            }
         }
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
-            const buscaInput = document.getElementById('search-produto');
-            const busca = buscaInput ? buscaInput.value.toLowerCase() : '';
+            const busca = document.getElementById('search-produto').value.toLowerCase();
             lista.innerHTML = '';
 
             const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
             if(filtrados.length === 0) {
-                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum produto cadastrado.</p>`;
+                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum produto em estoque.</p>`;
                 return;
             }
 
@@ -812,6 +851,126 @@ function mostrarAvisoNaTela(texto) {
                             <p>Cat: ${p.categoria || 'Geral'} | Preço: <b>R$ ${Number(p.venda).toFixed(2)}</b></p>
                             <p ${estoqueAviso}>Estoque: ${p.qtd} un</p>
                         </div>
+                        <div class="item-actions">
+                            <button class="btn-icon edit" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="btn-icon delete" onclick="excluirProduto(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function cadastrarCliente() {
+            if(!supabaseClient) return;
+            const nome = document.getElementById('cliente-nome').value;
+            const fone = document.getElementById('cliente-fone').value;
+
+            if(!nome || !fone) return alert('Insira nome e contato.');
+
+            await supabaseClient.from('clientes').insert([{ nome, fone, comprasCount: 0 }]);
+            document.getElementById('cliente-nome').value = '';
+            document.getElementById('cliente-fone').value = '';
+
+            await fetchAllData();
+            renderClientes();
+        }
+
+        function renderClientes() {
+            const lista = document.getElementById('lista-clientes');
+            lista.innerHTML = '';
+
+            if(DB.clientes.length === 0) {
+                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px;">Nenhum cliente cadastrado.</p>`;
+                return;
+            }
+
+            DB.clientes.forEach(c => {
+                lista.innerHTML += `
+                    <div class="item-card">
+                        <div class="item-img-thumb"><i class="fa-solid fa-user"></i></div>
+                        <div class="item-info">
+                            <h4>${c.nome}</h4>
+                            <p><i class="fa-brands fa-whatsapp text-success"></i> ${c.fone}</p>
+                            <p>Compras: <b>${c.comprasCount || 0}</b></p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function preencherSelectsVenda() {
+            const prodSelect = document.getElementById('venda-produto-select');
+            const cliSelect = document.getElementById('venda-cliente-select');
+
+            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+            DB.produtos.forEach(p => {
+                prodSelect.innerHTML += `<option value="${p.id}">${p.nome} (${p.qtd} un) - R$ ${Number(p.venda).toFixed(2)}</option>`;
+            });
+
+            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
+            DB.clientes.forEach(c => {
+                cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+            });
+
+            renderVendasRecentes();
+        }
+
+        async function registrarVenda() {
+            if(!supabaseClient) return;
+            const prodId = document.getElementById('venda-produto-select').value;
+            const qtd = parseInt(document.getElementById('venda-qtd').value) || 0;
+            const pagamento = document.getElementById('venda-pagamento').value;
+            const clienteId = document.getElementById('venda-cliente-select').value;
+
+            if(!prodId || qtd <= 0) return alert('Selecione um item e quantidade.');
+
+            const produto = DB.produtos.find(p => p.id == prodId);
+            if(produto.qtd < qtd) return alert(`Estoque insuficiente! Apenas ${produto.qtd} un disponíveis.`);
+
+            const novoEstoque = produto.qtd - qtd;
+            await supabaseClient.from('produtos').update({ qtd: novoEstoque }).eq('id', prodId);
+
+            if(clienteId) {
+                const cliente = DB.clientes.find(c => c.id == clienteId);
+                if(cliente) {
+                    await supabaseClient.from('clientes').update({ comprasCount: (cliente.comprasCount || 0) + 1 }).eq('id', clienteId);
+                }
+            }
+
+            const totalVenda = produto.venda * qtd;
+            const totalCusto = produto.custo * qtd;
+            const lucroVenda = totalVenda - totalCusto;
+
+            await supabaseClient.from('vendas').insert([{
+                data: new Date().toISOString().split('T')[0],
+                produtoNome: produto.nome,
+                produtoId: produto.id,
+                qtd, total: totalVenda, lucro: lucroVenda, custo: totalCusto, pagamento
+            }]);
+            
+            await fetchAllData();
+            preencherSelectsVenda();
+            alert('Venda registrada com sucesso! 🛍️');
+        }
+
+        function renderVendasRecentes() {
+            const lista = document.getElementById('lista-vendas-recentes');
+            lista.innerHTML = '';
+
+            const ultimas = [...DB.vendas].reverse().slice(0, 5);
+            if(ultimas.length === 0) {
+                lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:10px;">Nenhuma movimentação hoje.</p>`;
+                return;
+            }
+
+            ultimas.forEach(v => {
+                lista.innerHTML += `
+                    <div class="item-card" style="border-left: 4px solid var(--success);">
+                        <div class="item-info">
+                            <h4>${v.produtoNome} (x${v.qtd})</h4>
+                            <p>Modo: <b>${v.pagamento}</b> | Data: ${v.data}</p>
+                        </div>
+                        <div><span style="font-weight:700; color:var(--success)">+ R$ ${Number(v.total).toFixed(2)}</span></div>
                     </div>
                 `;
             });
@@ -831,21 +990,86 @@ function mostrarAvisoNaTela(texto) {
 
             DB.produtos.forEach(p => { despesasTotais += ((Number(p.custo) || 0) * (parseInt(p.qtd) || 0)); });
 
-            document.getElementById('dash-faturamento-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
-            document.getElementById('dash-faturamento-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
-            document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
-            document.getElementById('dash-total-produtos').innerText = DB.produtos.length;
-            document.getElementById('dash-estoque-baixo').innerText = DB.produtos.filter(p => (parseInt(p.qtd) || 0) <= 3).length;
+            const totalProdutos = DB.produtos.length;
+            const estoqueBaixo = DB.produtos.filter(p => (parseInt(p.qtd) || 0) <= 3).length;
 
-            document.getElementById('fin-receita-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
-            document.getElementById('fin-receita-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
-            document.getElementById('fin-despesas').innerText = `R$ ${despesasTotais.toFixed(2)}`;
-            document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            if(document.getElementById('dash-faturamento-mes')) document.getElementById('dash-faturamento-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+            if(document.getElementById('dash-faturamento-dia')) document.getElementById('dash-faturamento-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
+            if(document.getElementById('dash-lucro-mes')) document.getElementById('dash-lucro-mes').innerText = `R$ ${lucroMes.toFixed(2)}`;
+            if(document.getElementById('dash-total-produtos')) document.getElementById('dash-total-produtos').innerText = totalProdutos;
+            if(document.getElementById('dash-estoque-baixo')) document.getElementById('dash-estoque-baixo').innerText = estoqueBaixo;
+
+            if(document.getElementById('fin-receita-dia')) document.getElementById('fin-receita-dia').innerText = `R$ ${faturamentoDia.toFixed(2)}`;
+            if(document.getElementById('fin-receita-mes')) document.getElementById('fin-receita-mes').innerText = `R$ ${faturamentoMes.toFixed(2)}`;
+            if(document.getElementById('fin-despesas')) document.getElementById('fin-despesas').innerText = `R$ ${despesasTotais.toFixed(2)}`;
+            if(document.getElementById('fin-lucro')) document.getElementById('fin-lucro').innerText = `R$ ${lucroMes.toFixed(2)}`;
+
+            calcularRankProdutos();
+        }
+
+        function calcularRankProdutos() {
+            let contagem = {};
+            DB.vendas.forEach(v => { contagem[v.produtoNome] = (contagem[v.produtoNome] || 0) + (parseInt(v.qtd) || 0); });
+            let ordenados = Object.keys(contagem).sort((a,b) => contagem[b] - contagem[a]);
+
+            if(ordenados.length > 0) {
+                if(document.getElementById('rel-mais-vendido')) document.getElementById('rel-mais-vendido').innerText = `${ordenados[0]} (${contagem[ordenados[0]]} un)`;
+                if(document.getElementById('rel-menos-vendido')) document.getElementById('rel-menos-vendido').innerText = `${ordenados[ordenados.length - 1]} (${contagem[ordenados[ordenados.length - 1]]} un)`;
+            } else {
+                if(document.getElementById('rel-mais-vendido')) document.getElementById('rel-mais-vendido').innerText = "Nenhuma venda.";
+                if(document.getElementById('rel-menos-vendido')) document.getElementById('rel-menos-vendido').innerText = "Nenhuma venda.";
+            }
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const texto = input.value.trim();
+            if(!texto) return;
+            renderBubble(texto, 'user');
+            input.value = '';
+            setTimeout(() => { processarRespostaIA(texto); }, 400);
+        }
+
+        function askLadyIA(pergunta) {
+            renderBubble(pergunta, 'user');
+            setTimeout(() => { processarRespostaIA(pergunta); }, 400);
+        }
+
+        function renderBubble(texto, side) {
+            const box = document.getElementById('chat-box');
+            if(box) {
+                box.innerHTML += `<div class="chat-bubble ${side}">${texto}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function processarRespostaIA(pergunta) {
+            const p = pergunta.toLowerCase();
+            let resposta = "Ainda estou a processar as informações. Podes perguntar-me sobre: Faturamento, Estoque, Lucro ou Mais vendidos!";
+
+            let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
+            let lucroTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.lucro) || 0), 0);
+            let totalTiposProdutos = DB.produtos.length;
+
+            if (p.includes('faturamento') || p.includes('vendeu')) {
+                resposta = `O faturamento bruto atual é de **R$ ${faturamentoTotal.toFixed(2)}**.`;
+            } else if (p.includes('estoque') || p.includes('produtos')) {
+                resposta = `Temos **${totalTiposProdutos} produtos cadastrados** no sistema.`;
+            } else if (p.includes('lucro')) {
+                resposta = `O rendimento líquido estimado é de **R$ ${lucroTotal.toFixed(2)}**.`;
+            }
+            renderBubble(resposta, 'lady');
         }
 
         window.onload = async () => {
             await verificarSessao();
+            const chatIn = document.getElementById('chat-input');
+            if(chatIn) {
+                chatIn.addEventListener('keypress', function(e) {
+                    if(e.key === 'Enter') sendChat();
+                });
+            }
         };
     </script>
 </body>
-</html>
+    </html>

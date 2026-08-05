@@ -512,10 +512,10 @@
             </div>
         </section>
 
-        <!-- ABA NOVO: PEDIDOS (RECEBIDOS VIA CATÁLOGO) -->
+        <!-- ABA PEDIDOS (RECEBIDOS VIA CATÁLOGO) -->
         <section id="screen-pedidos" class="app-screen">
             <h2><i class="fa-solid fa-bell" style="color: var(--purple-main);"></i> Pedidos do Catálogo</h2>
-            <p style="font-size: 12px; color: var(--gray-text); margin-bottom: 15px;">Acompanhe em tempo real os pedidos feitos pelos seus clientes no site/catálogo.</p>
+            <p style="font-size: 12px; color: var(--gray-text); margin-bottom: 15px;">Acompanhe em tempo real os pedidos feitos pelos seus clientes no catálogo.</p>
             <div class="list-container" id="lista-pedidos-catalogo"></div>
         </section>
 
@@ -551,7 +551,6 @@
             <button class="nav-item" onclick="switchScreen('relatorios', this)">
                 <i class="fa-solid fa-chart-simple"></i> Relat
             </button>
-            <!-- NOVA ABA PEDIDOS ADICIONADA ANTES DA CONFIGURAÇÃO -->
             <button class="nav-item" onclick="switchScreen('pedidos', this)">
                 <span class="badge-notify" id="pedidos-badge">0</span>
                 <i class="fa-solid fa-bell"></i> Pedidos
@@ -607,31 +606,25 @@
         let DB = { produtos: [], vendas: [], clientes: [] };
         let novosPedidosCount = 0;
 
-        // SISTEMA EM TEMPO REAL CORRIGIDO
-function escutarNovosPedidos() {
-    supabaseClient
-        .channel('pedidos-em-tempo-real')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vendas' }, async (payload) => {
-            const novaVenda = payload.new;
-            
-            // 1. Atualiza os dados locais imediatamente com a nova venda
-            DB.vendas.unshift(novaVenda);
-            
-            // 2. Incrementa o contador da notificação
-            novosPedidosCount++;
-            atualizarBadgePedidos();
-            tocarSomNotificacao();
-            
-            // 3. Atualiza as telas do app na hora
-            calcularMetricas();
-            renderPedidosCatalogo();
-            
-            // 4. Garante sincronização completa com o banco
-            await fetchAllData();
-        })
-        .subscribe();
-}
-
+        // ESCUTA EM TEMPO REAL AJUSTADA PARA ATUALIZAR A TELA IMEDIATAMENTE
+        function escutarNovosPedidos() {
+            supabaseClient
+                .channel('pedidos-em-tempo-real')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vendas' }, async (payload) => {
+                    const novaVenda = payload.new;
+                    
+                    if (novaVenda.pagamento && novaVenda.pagamento.includes('Catálogo')) {
+                        novosPedidosCount++;
+                        atualizarBadgePedidos();
+                        tocarSomNotificacao();
+                        
+                        // Atualiza os dados imediatamente no app
+                        await fetchAllData();
+                        renderPedidosCatalogo();
+                    }
+                })
+                .subscribe();
+        }
 
         function tocarSomNotificacao() {
             try {
@@ -710,6 +703,7 @@ function escutarNovosPedidos() {
 
                 calcularMetricas();
                 renderPedidosCatalogo();
+                renderEstoque();
             } catch (error) {
                 console.error("Erro ao sincronizar dados:", error);
             }
@@ -751,7 +745,7 @@ function escutarNovosPedidos() {
                         <div class="item-img-thumb"><i class="fa-solid fa-bag-shopping"></i></div>
                         <div class="item-info">
                             <h4>${p.produtoNome} (x${p.qtd})</h4>
-                            <p><b>Origem:</b> ${p.pagamento}</p>
+                            <p><b>Cliente/Origem:</b> ${p.pagamento}</p>
                             <p><b>Data:</b> ${p.data}</p>
                         </div>
                         <div>
@@ -764,7 +758,8 @@ function escutarNovosPedidos() {
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
-            const busca = document.getElementById('search-produto').value.toLowerCase();
+            const buscaInput = document.getElementById('search-produto');
+            const busca = buscaInput ? buscaInput.value.toLowerCase() : '';
             lista.innerHTML = '';
 
             const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
@@ -822,4 +817,3 @@ function escutarNovosPedidos() {
     </script>
 </body>
 </html>
-

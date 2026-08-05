@@ -606,25 +606,57 @@
         let DB = { produtos: [], vendas: [], clientes: [] };
         let novosPedidosCount = 0;
 
-        // ESCUTA EM TEMPO REAL AJUSTADA PARA ATUALIZAR A TELA IMEDIATAMENTE
-        function escutarNovosPedidos() {
-            supabaseClient
-                .channel('pedidos-em-tempo-real')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'vendas' }, async (payload) => {
-                    const novaVenda = payload.new;
-                    
-                    if (novaVenda.pagamento && novaVenda.pagamento.includes('Catálogo')) {
-                        novosPedidosCount++;
-                        atualizarBadgePedidos();
-                        tocarSomNotificacao();
-                        
-                        // Atualiza os dados imediatamente no app
-                        await fetchAllData();
-                        renderPedidosCatalogo();
-                    }
-                })
-                .subscribe();
-        }
+        // ESCUTA EM TEMPO REAL CORRIGIDA
+function escutarNovosPedidos() {
+    supabaseClient
+        .channel('canal-pedidos-geral')
+        .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'vendas' },
+            async (payload) => {
+                console.log("🔥 Novo pedido recebido via Realtime:", payload);
+
+                // Incrementa contador e toca o aviso
+                novosPedidosCount++;
+                atualizarBadgePedidos();
+                tocarSomNotificacao();
+                
+                // Exibe alerta roxo no topo da tela
+                mostrarAvisoNaTela("🛍️ NOVO PEDIDO RECEBIDO!");
+                
+                // Recarrega os dados e atualiza a lista na hora
+                await fetchAllData();
+                renderPedidosCatalogo();
+            }
+        )
+        .subscribe((status) => {
+            console.log("Status da conexão em tempo real:", status);
+        });
+}
+
+// Banner de aviso visual na tela
+function mostrarAvisoNaTela(texto) {
+    const aviso = document.createElement('div');
+    aviso.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #8A2BE2;
+        color: white;
+        padding: 14px 24px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 8px 20px rgba(138,43,226,0.4);
+        z-index: 99999;
+    `;
+    aviso.innerText = texto;
+    document.body.appendChild(aviso);
+
+    setTimeout(() => { aviso.remove(); }, 4000);
+}
+
 
         function tocarSomNotificacao() {
             try {

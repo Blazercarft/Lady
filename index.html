@@ -161,7 +161,7 @@
 
         .dash-grid {
             display: grid;
-            grid-template-columns: repeat(2, 11fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -278,6 +278,13 @@
             justify-content: center;
             color: var(--purple-main);
             font-size: 20px;
+            overflow: hidden;
+        }
+
+        .item-img-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .item-info { flex: 1; }
@@ -358,7 +365,7 @@
             width: 100%;
             max-width: 480px;
             background: var(--white);
-            display: none; /* Inicia oculto até fazer o login */
+            display: none;
             justify-content: space-around;
             padding: 10px 0;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
@@ -599,7 +606,7 @@
                 <i class="fa-solid fa-cart-shopping"></i> Vendas
             </button>
             <button class="nav-item" onclick="switchScreen('relatorios', this)">
-                <i class="fa-solid fa-chart-simple"></i> Relatórios
+                <i class="fa-solid fa-chart-simple"></i> Relatorios
             </button>
             <button class="nav-item" onclick="switchScreen('configuracoes', this)">
                 <i class="fa-solid fa-gear"></i> Config
@@ -706,7 +713,7 @@
         async function verificarSessao() {
             if(!supabaseClient) return;
             const { data } = await supabaseClient.auth.getSession();
-            if (data.session) {
+            if (data && data.session) {
                 iniciarAplicacao();
             }
         }
@@ -719,18 +726,36 @@
             await fetchAllData();
         }
 
+        // SOLUÇÃO 1 APLICADA: BUSCA OTIMIZADA PARA PREVENIR ERRO 57014 (TIMEOUT)
         async function fetchAllData() {
             if(!supabaseClient) return;
             try {
-                const { data: prods } = await supabaseClient.from('produtos').select('*').order('nome');
-                const { data: vnds } = await supabaseClient.from('vendas').select('*');
-                const { data: clis } = await supabaseClient.from('clientes').select('*').order('nome');
+                // Buscamos produtos especificando os campos para evitar requisições muito pesadas
+                const { data: prods, error: errProds } = await supabaseClient
+                    .from('produtos')
+                    .select('id, nome, categoria, qtd, custo, venda, descricao, imagem')
+                    .order('nome');
+
+                const { data: vnds, error: errVnds } = await supabaseClient
+                    .from('vendas')
+                    .select('*');
+
+                const { data: clis, error: errClis } = await supabaseClient
+                    .from('clientes')
+                    .select('*')
+                    .order('nome');
+
+                if (errProds) console.error("Erro ao carregar produtos:", errProds);
+                if (errVnds) console.error("Erro ao carregar vendas:", errVnds);
+                if (errClis) console.error("Erro ao carregar clientes:", errClis);
 
                 DB.produtos = prods || [];
                 DB.vendas = vnds || [];
                 DB.clientes = clis || [];
 
+                // Atualiza a interface do app
                 calcularMetricas();
+                renderEstoque();
             } catch (error) {
                 console.error("Erro ao sincronizar dados com o banco:", error);
             }
@@ -752,11 +777,20 @@
 
         function triggerImageBase64(input) {
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Trava de segurança: Se o arquivo for maior que 2MB, avisa o usuário
+                if(file.size > 2 * 1024 * 1024) {
+                    alert("Por favor, selecione uma imagem menor que 2MB para não sobrecarregar o banco de dados.");
+                    input.value = "";
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     document.getElementById('prod-img-base64').value = e.target.result;
                 }
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
             }
         }
 
@@ -765,14 +799,16 @@
             if(id) {
                 document.getElementById('modal-title').innerText = "Editar Produto";
                 const p = DB.produtos.find(prod => prod.id === id);
-                document.getElementById('prod-id').value = p.id;
-                document.getElementById('prod-nome').value = p.nome;
-                document.getElementById('prod-categoria').value = p.categoria || '';
-                document.getElementById('prod-qtd').value = p.qtd;
-                document.getElementById('prod-custo').value = p.custo;
-                document.getElementById('prod-venda').value = p.venda;
-                document.getElementById('prod-desc').value = p.descricao || '';
-                document.getElementById('prod-img-base64').value = p.imagem || '';
+                if(p) {
+                    document.getElementById('prod-id').value = p.id;
+                    document.getElementById('prod-nome').value = p.nome;
+                    document.getElementById('prod-categoria').value = p.categoria || '';
+                    document.getElementById('prod-qtd').value = p.qtd;
+                    document.getElementById('prod-custo').value = p.custo;
+                    document.getElementById('prod-venda').value = p.venda;
+                    document.getElementById('prod-desc').value = p.descricao || '';
+                    document.getElementById('prod-img-base64').value = p.imagem || '';
+                }
             } else {
                 document.getElementById('modal-title').innerText = "Cadastrar Produto";
                 document.getElementById('prod-id').value = '';
@@ -792,7 +828,7 @@
         }
 
         async function salvarProduto() {
-            if(!supabaseClient) return alert('Configure as chaves do Supabase primeiro!');
+            if(!supabaseClient) return alert('Supabase não conectado!');
             const id = document.getElementById('prod-id').value;
             const nome = document.getElementById('prod-nome').value;
             const categoria = document.getElementById('prod-categoria').value;
@@ -803,7 +839,7 @@
             const imagem = document.getElementById('prod-img-base64').value;
 
             if(!nome || qtd < 0 || custo <= 0 || venda <= 0) {
-                alert('Preencha os campos obrigatórios.');
+                alert('Preencha os campos obrigatórios corretamente.');
                 return;
             }
 
@@ -817,30 +853,31 @@
 
             closeProductModal();
             await fetchAllData();
-            renderEstoque();
         }
 
         async function excluirProduto(id) {
             if(supabaseClient && confirm("Deseja remover este produto?")) {
                 await supabaseClient.from('produtos').delete().eq('id', id);
                 await fetchAllData();
-                renderEstoque();
             }
         }
 
         function renderEstoque() {
             const lista = document.getElementById('lista-produtos');
-            const busca = document.getElementById('search-produto').value.toLowerCase();
+            if(!lista) return;
+
+            const buscaInput = document.getElementById('search-produto');
+            const busca = buscaInput ? buscaInput.value.toLowerCase() : '';
             lista.innerHTML = '';
 
-            const filtrados = DB.produtos.filter(p => p.nome.toLowerCase().includes(busca));
+            const filtrados = DB.produtos.filter(p => p.nome && p.nome.toLowerCase().includes(busca));
             if(filtrados.length === 0) {
                 lista.innerHTML = `<p style="text-align:center; color:var(--gray-text); font-size:13px; margin-top:20px;">Nenhum produto em estoque.</p>`;
                 return;
             }
 
             filtrados.forEach(p => {
-                const imgTag = p.imagem ? `<img src="${p.imagem}" class="item-img-thumb">` : `<div class="item-img-thumb"><i class="fa-solid fa-image"></i></div>`;
+                const imgTag = p.imagem ? `<div class="item-img-thumb"><img src="${p.imagem}"></div>` : `<div class="item-img-thumb"><i class="fa-solid fa-image"></i></div>`;
                 const estoqueAviso = p.qtd <= 3 ? `style="color: var(--danger); font-weight:700;"` : '';
                 
                 lista.innerHTML += `
@@ -877,6 +914,7 @@
 
         function renderClientes() {
             const lista = document.getElementById('lista-clientes');
+            if(!lista) return;
             lista.innerHTML = '';
 
             if(DB.clientes.length === 0) {
@@ -902,15 +940,19 @@
             const prodSelect = document.getElementById('venda-produto-select');
             const cliSelect = document.getElementById('venda-cliente-select');
 
-            prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
-            DB.produtos.forEach(p => {
-                prodSelect.innerHTML += `<option value="${p.id}">${p.nome} (${p.qtd} un) - R$ ${Number(p.venda).toFixed(2)}</option>`;
-            });
+            if(prodSelect) {
+                prodSelect.innerHTML = '<option value="">-- Escolha o Produto --</option>';
+                DB.produtos.forEach(p => {
+                    prodSelect.innerHTML += `<option value="${p.id}">${p.nome} (${p.qtd} un) - R$ ${Number(p.venda).toFixed(2)}</option>`;
+                });
+            }
 
-            cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
-            DB.clientes.forEach(c => {
-                cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
-            });
+            if(cliSelect) {
+                cliSelect.innerHTML = '<option value="">Consumidor Final</option>';
+                DB.clientes.forEach(c => {
+                    cliSelect.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+                });
+            }
 
             renderVendasRecentes();
         }
@@ -922,9 +964,10 @@
             const pagamento = document.getElementById('venda-pagamento').value;
             const clienteId = document.getElementById('venda-cliente-select').value;
 
-            if(!prodId || qtd <= 0) return alert('Selecione um item e quantidade.');
+            if(!prodId || qtd <= 0) return alert('Selecione um item e quantidade válida.');
 
             const produto = DB.produtos.find(p => p.id == prodId);
+            if(!produto) return alert('Produto não encontrado.');
             if(produto.qtd < qtd) return alert(`Estoque insuficiente! Apenas ${produto.qtd} un disponíveis.`);
 
             const novoEstoque = produto.qtd - qtd;
@@ -955,6 +998,7 @@
 
         function renderVendasRecentes() {
             const lista = document.getElementById('lista-vendas-recentes');
+            if(!lista) return;
             lista.innerHTML = '';
 
             const ultimas = [...DB.vendas].reverse().slice(0, 5);
@@ -1045,7 +1089,7 @@
 
         function processarRespostaIA(pergunta) {
             const p = pergunta.toLowerCase();
-            let resposta = "Ainda estou a processar as informações. Podes perguntar-me sobre: Faturamento, Estoque, Lucro ou Mais vendidos!";
+            let resposta = "Ainda estou aprendendo a responder a essa pergunta. Tente perguntar sobre: Faturamento, Estoque, Lucro ou Mais vendidos!";
 
             let faturamentoTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.total) || 0), 0);
             let lucroTotal = DB.vendas.reduce((acc, v) => acc + (Number(v.lucro) || 0), 0);
@@ -1056,7 +1100,7 @@
             } else if (p.includes('estoque') || p.includes('produtos')) {
                 resposta = `Temos **${totalTiposProdutos} produtos cadastrados** no sistema.`;
             } else if (p.includes('lucro')) {
-                resposta = `O rendimento líquido estimado é de **R$ ${lucroTotal.toFixed(2)}**.`;
+                resposta = `O lucro líquido estimado é de **R$ ${lucroTotal.toFixed(2)}**.`;
             }
             renderBubble(resposta, 'lady');
         }
@@ -1072,4 +1116,5 @@
         };
     </script>
 </body>
-        </html>
+</html>
+

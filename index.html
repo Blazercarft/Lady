@@ -727,31 +727,34 @@
         }
 
      async function fetchAllData() {
+    iasync function fetchAllData() {
     if(!supabaseClient) return;
     try {
-        // NÃO buscamos o campo 'imagem' aqui para a lista carregar instantaneamente!
-        const { data: prods, error: errProds } = await supabaseClient
-            .from('produtos')
-            .select('id, nome, categoria, qtd, custo, venda, descricao')
-            .order('nome');
+        // Dispara as 3 buscas ao mesmo tempo em paralelo para máxima velocidade
+        const [resProds, resVnds, resClis] = await Promise.all([
+            supabaseClient.from('produtos').select('id, nome, categoria, qtd, custo, venda, descricao, imagem').order('nome'),
+            supabaseClient.from('vendas').select('*'),
+            supabaseClient.from('clientes').select('*').order('nome')
+        ]);
 
-        const { data: vnds, error: errVnds } = await supabaseClient.from('vendas').select('*');
-        const { data: clis, error: errClis } = await supabaseClient.from('clientes').select('*').order('nome');
+        // Trata erros de cada requisição
+        if (resProds.error) console.error("Erro produtos:", resProds.error);
+        if (resVnds.error) console.error("Erro vendas:", resVnds.error);
+        if (resClis.error) console.error("Erro clientes:", resClis.error);
 
-        if (errProds) console.error("Erro produtos:", errProds);
-        if (errVnds) console.error("Erro vendas:", errVnds);
-        if (errClis) console.error("Erro clientes:", errClis);
+        // Atualiza a memória local (DB)
+        DB.produtos = resProds.data || [];
+        DB.vendas = resVnds.data || [];
+        DB.clientes = resClis.data || [];
 
-        DB.produtos = prods || [];
-        DB.vendas = vnds || [];
-        DB.clientes = clis || [];
-
+        // Atualiza a tela instantaneamente
         calcularMetricas();
         renderEstoque();
     } catch (error) {
-        console.error("Erro ao sincronizar:", error);
+        console.error("Erro ao sincronizar dados com o banco:", error);
     }
 }
+
 
 
         function switchScreen(screenId, element) {

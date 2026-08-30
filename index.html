@@ -726,41 +726,36 @@
             await fetchAllData();
         }
 
-        // SOLUÇÃO 1 APLICADA: BUSCA OTIMIZADA PARA PREVENIR ERRO 57014 (TIMEOUT)
-        async function fetchAllData() {
-            if(!supabaseClient) return;
-            try {
-                // Buscamos produtos especificando os campos para evitar requisições muito pesadas
-                const { data: prods, error: errProds } = await supabaseClient
-                    .from('produtos')
-                    .select('id, nome, categoria, qtd, custo, venda, descricao, imagem')
-                    .order('nome');
+        // BUSCA OTIMIZADA E EM PARALELO (PREVINE ERRO DE TIMEOUT 57014)
+async function fetchAllData() {
+    if (!supabaseClient) return;
 
-                const { data: vnds, error: errVnds } = await supabaseClient
-                    .from('vendas')
-                    .select('*');
+    try {
+        // Dispara as 3 consultas simultaneamente para máxima velocidade
+        const [resProds, resVnds, resClis] = await Promise.all([
+            supabaseClient.from('produtos').select('id, nome, categoria, qtd, custo, venda, descricao, imagem').order('nome'),
+            supabaseClient.from('vendas').select('*'),
+            supabaseClient.from('clientes').select('*').order('nome')
+        ]);
 
-                const { data: clis, error: errClis } = await supabaseClient
-                    .from('clientes')
-                    .select('*')
-                    .order('nome');
+        // Exibe avisos no console apenas se houver falhas específicas
+        if (resProds.error) console.error("Erro ao carregar produtos:", resProds.error.message);
+        if (resVnds.error) console.error("Erro ao carregar vendas:", resVnds.error.message);
+        if (resClis.error) console.error("Erro ao carregar clientes:", resClis.error.message);
 
-                if (errProds) console.error("Erro ao carregar produtos:", errProds);
-                if (errVnds) console.error("Erro ao carregar vendas:", errVnds);
-                if (errClis) console.error("Erro ao carregar clientes:", errClis);
+        // Atualiza a memória local com fallback para lista vazia
+        DB.produtos = resProds.data || [];
+        DB.vendas = resVnds.data || [];
+        DB.clientes = resClis.data || [];
 
-                DB.produtos = prods || [];
-                DB.vendas = vnds || [];
-                DB.clientes = clis || [];
-
-                // Atualiza a interface do app
-                calcularMetricas();
-                renderEstoque();
-            } catch (error) {
-                console.error("Erro ao sincronizar dados com o banco:", error);
-            }
-        }
+        // Atualiza a interface do app
+        calcularMetricas();
+        renderEstoque();
+    } catch (error) {
+        console.error("Erro ao sincronizar dados com o banco:", error);
+    }
 }
+
         function switchScreen(screenId, element) {
             document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
